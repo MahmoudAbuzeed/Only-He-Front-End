@@ -1,5 +1,5 @@
 // ** React Imports
-import { ChangeEvent, MouseEvent, ReactNode, useState } from "react";
+import { useState, Fragment, ChangeEvent, MouseEvent, ReactNode } from "react";
 
 // ** MUI Components
 import Box from "@mui/material/Box";
@@ -7,13 +7,13 @@ import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
-import InputLabel from "@mui/material/InputLabel";
 import Typography from "@mui/material/Typography";
+import InputLabel from "@mui/material/InputLabel";
 import IconButton from "@mui/material/IconButton";
 import CardContent from "@mui/material/CardContent";
 import FormControl from "@mui/material/FormControl";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import MuiCard, { CardProps } from "@mui/material/Card";
 import InputAdornment from "@mui/material/InputAdornment";
 import MuiFormControlLabel, {
@@ -27,15 +27,15 @@ import Twitter from "mdi-material-ui/Twitter";
 import Facebook from "mdi-material-ui/Facebook";
 import EyeOutline from "mdi-material-ui/EyeOutline";
 import EyeOffOutline from "mdi-material-ui/EyeOffOutline";
-
-// ** Demo Imports
 import { Link } from "react-router-dom";
-import themeConfig from "../../configs/themeConfig";
 import BlankLayout from "../../@core/layouts/BlankLayout";
 
 interface State {
   password: string;
   showPassword: boolean;
+  email: string;
+  firstname: string;
+  lastname: string;
 }
 
 // ** Styled Components
@@ -51,6 +51,8 @@ const LinkStyled = styled("a")(({ theme }) => ({
 
 const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(
   ({ theme }) => ({
+    marginTop: theme.spacing(1.5),
+    marginBottom: theme.spacing(4),
     "& .MuiFormControlLabel-label": {
       fontSize: "0.875rem",
       color: theme.palette.text.secondary,
@@ -58,26 +60,29 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(
   })
 );
 
-const LoginComponent = () => {
-  // ** State
+const RegisterComponent = () => {
+  // ** States
   const [values, setValues] = useState<State>({
     password: "",
     showPassword: false,
+    email: "",
+    firstname: "",
+    lastname: "",
   });
+
 
   const handleChange =
     (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
       setValues({ ...values, [prop]: event.target.value });
     };
-
   const handleClickShowPassword = () => {
     setValues({ ...values, showPassword: !values.showPassword });
   };
-
   const handleMouseDownPassword = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
 
+  console.log({values})
   return (
     <Box
       className="content-center"
@@ -87,7 +92,8 @@ const LoginComponent = () => {
       minHeight="100vh"
     >
       <Card sx={{ width: 4, textAlign: "center" }}>
-        <CardContent sx={{ mb: 8 }}>
+        <CardContent
+        >
           <Box
             sx={{
               mb: 6,
@@ -114,10 +120,10 @@ const LoginComponent = () => {
               variant="h5"
               sx={{ fontWeight: 600, marginBottom: 1.5 }}
             >
-              Welcome to Only He! 👋🏻
+              Adventure starts here 🚀
             </Typography>
             <Typography variant="body2">
-              Please sign-in to your account and start the adventure
+              Make your journey easy and fun!
             </Typography>
           </Box>
           <form
@@ -128,16 +134,32 @@ const LoginComponent = () => {
             <TextField
               autoFocus
               fullWidth
-              id="email"
+              id="firstname"
+              label="Firstname"
+              onChange={handleChange("firstname")}
+              sx={{ marginBottom: 4 }}
+            />
+            <TextField
+              autoFocus
+              fullWidth
+              id="lastname"
+              label="Lastname"
+              onChange={handleChange("lastname")}
+              sx={{ marginBottom: 4 }}
+            />
+            <TextField
+              fullWidth
+              type="email"
               label="Email"
+              onChange={handleChange("email")}
               sx={{ marginBottom: 4 }}
             />
             <FormControl fullWidth>
-              <InputLabel htmlFor="auth-login-password">Password</InputLabel>
+              <InputLabel htmlFor="auth-register-password">Password</InputLabel>
               <OutlinedInput
                 label="Password"
                 value={values.password}
-                id="auth-login-password"
+                id="auth-register-password"
                 onChange={handleChange("password")}
                 type={values.showPassword ? "text" : "password"}
                 endAdornment={
@@ -148,36 +170,41 @@ const LoginComponent = () => {
                       onMouseDown={handleMouseDownPassword}
                       aria-label="toggle password visibility"
                     >
-                      {values.showPassword ? <EyeOutline /> : <EyeOffOutline />}
+                      {values.showPassword ? (
+                        <EyeOutline fontSize="small" />
+                      ) : (
+                        <EyeOffOutline fontSize="small" />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 }
               />
             </FormControl>
-            <Box
-              sx={{
-                mb: 4,
-                display: "flex",
-                alignItems: "center",
-                flexWrap: "wrap",
-                justifyContent: "space-between",
-              }}
-            >
-              <FormControlLabel control={<Checkbox />} label="Remember Me" />
-              <Link href="/" to={undefined}>
-                <LinkStyled onClick={(e) => e.preventDefault()}>
-                  Forgot Password?
-                </LinkStyled>
-              </Link>
-            </Box>
+            <FormControlLabel
+              control={<Checkbox />}
+              label={
+                <Fragment>
+                  <span>I agree to </span>
+                  <Link href="/" to={undefined}>
+                    <LinkStyled
+                      onClick={(e: MouseEvent<HTMLElement>) =>
+                        e.preventDefault()
+                      }
+                    >
+                      privacy policy & terms
+                    </LinkStyled>
+                  </Link>
+                </Fragment>
+              }
+            />
             <Button
               fullWidth
               size="large"
+              type="submit"
               variant="contained"
               sx={{ marginBottom: 7 }}
-              onClick={() => console.log("clicked")}
             >
-              Login
+              Sign up
             </Button>
             <Box
               sx={{
@@ -188,11 +215,11 @@ const LoginComponent = () => {
               }}
             >
               <Typography variant="body2" sx={{ marginRight: 2 }}>
-                New on our platform?
+                Already have an account?
               </Typography>
               <Typography variant="body2">
                 <Link href="/" to={undefined}>
-                  <LinkStyled>Create an account</LinkStyled>
+                  <LinkStyled>Sign in instead</LinkStyled>
                 </Link>
               </Typography>
             </Box>
@@ -251,6 +278,8 @@ const LoginComponent = () => {
   );
 };
 
-LoginComponent.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>;
+RegisterComponent.getLayout = (page: ReactNode) => (
+  <BlankLayout>{page}</BlankLayout>
+);
 
-export default LoginComponent;
+export default RegisterComponent;

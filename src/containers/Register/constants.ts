@@ -1,0 +1,11 @@
+/*
+ *
+ * Register constants
+ *
+ */
+
+export const registerConstants = {
+  TEST_REGISTER_REQUEST: "TEST_REGISTER_REQUEST",
+  TEST_REGISTER_SUCCESS: "TEST_REGISTER_SUCCESS",
+  TEST_REGISTER_FAILURE: "TEST_REGISTER_FAILURE",
+};

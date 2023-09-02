@@ -1,0 +1,11 @@
+/*
+ *
+ * Dashboard constants
+ *
+ */
+
+export const dashboardConstants = {
+  TEST_DASHBOARD_REQUEST: "TEST_DASHBOARD_REQUEST",
+  TEST_DASHBOARD_SUCCESS: "TEST_DASHBOARD_SUCCESS",
+  TEST_DASHBOARD_FAILURE: "TEST_DASHBOARD_FAILURE",
+};

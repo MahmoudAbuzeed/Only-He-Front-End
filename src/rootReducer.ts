@@ -9,6 +9,7 @@ import history from "./utils/history";
 import homeReducer from "./containers/Home/reducer";
 import loginReducer from "./containers/Login/reducer";
 import registerReducer from "./containers/Register/reducer";
+import dashboardReducer from "./containers/Dashboard/reducer";
 
 /**
  * Merges the main reducer with the router state and dynamically injected reducers
@@ -18,6 +19,7 @@ export default function createReducer(injectedReducers = {}) {
     home: homeReducer,
     login: loginReducer,
     register: registerReducer,
+    dashboard: dashboardReducer,
     router: connectRouter(history),
     ...injectedReducers,
   });

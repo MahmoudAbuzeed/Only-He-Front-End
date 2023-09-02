@@ -2,6 +2,11 @@ const HomeComponent = () => {
   return (
     <>
       <h2>Hello world from Home Container</h2>
+      <h2>Hello world from Home Container</h2>
+      <h2>Hello world from Home Container</h2>
+      <h2>Hello world from Home Container</h2>
+      <h2>Hello world from Home Container</h2>
+      <h2>Hello world from Home Container</h2>
     </>
   );
 };

@@ -7,14 +7,15 @@ import { connectRouter } from "connected-react-router";
 
 import history from "./utils/history";
 import homeReducer from "./containers/Home/reducer";
+import loginReducer from "./containers/Login/reducer";
 
 /**
  * Merges the main reducer with the router state and dynamically injected reducers
  */
 export default function createReducer(injectedReducers = {}) {
   const rootReducer = combineReducers({
-    //  language: languageProviderReducer,
-    home: homeReducer,
+    // home: homeReducer,
+    login: loginReducer,
     router: connectRouter(history),
     ...injectedReducers,
   });

@@ -17,10 +17,11 @@ import InboxIcon from "@material-ui/icons/Inbox";
 import MailIcon from "@material-ui/icons/Mail";
 import { useStyles } from "./styles";
 import { CategoriesPage } from "../../containers/Categories";
+import { ProductsPage } from "../../containers/Products";
 
 
 const Categories = () => <CategoriesPage />;
-const Products = () => <div>Products Page</div>;
+const Products = () => <ProductsPage />;
 const Orders = () => <div>Orders Page</div>;
 const Users = () => <div>Users Page</div>;
 

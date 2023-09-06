@@ -5,6 +5,7 @@ import { LoginPage } from "../Login/index";
 import { RegisterPage } from "../Register";
 import HomePage from "../Home/index";
 import LayoutComponent from "../../components/layout";
+import { ProductsPage } from "../Products";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route exact path="/categories" component={CategoriesPage} />
+        <Route exact path="/products" component={ProductsPage} />
         <Route path="/login" component={LoginPage} />
         <Route path="/register" component={RegisterPage} />
         {/* <Route component={NotFoundPage} /> */}

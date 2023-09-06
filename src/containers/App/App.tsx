@@ -4,15 +4,18 @@ import { DashboardPage } from "../Dashboard";
 import { LoginPage } from "../Login/index";
 import { RegisterPage } from "../Register";
 import HomePage from "../Home/index";
+import LayoutComponent from "../../components/layout";
 
 function App() {
   return (
     <div>
+      <LayoutComponent />
+
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route exact path="/dashboard" component={DashboardPage} />
-        <Route  path="/login" component={LoginPage} />
-        <Route  path="/register" component={RegisterPage} />
+        <Route path="/login" component={LoginPage} />
+        <Route path="/register" component={RegisterPage} />
         {/* <Route component={NotFoundPage} /> */}
       </Switch>
     </div>

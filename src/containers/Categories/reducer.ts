@@ -1,10 +1,10 @@
 /*
  *
- * dashboard reducer
+ * categories reducer
  *
  */
 import produce from "immer";
-import { dashboardConstants } from "./constants";
+import { categoriesConstants } from "./constants";
 
 export const initialState = {
   loading: false,
@@ -13,23 +13,23 @@ export const initialState = {
 };
 
 /* eslint-disable default-case, no-param-reassign */
-const dashboardReducer = (state = initialState, action: any) =>
+const categoriesReducer = (state = initialState, action: any) =>
   produce(state, (draft) => {
     switch (action.type) {
-      case dashboardConstants.TEST_DASHBOARD_REQUEST:
+      case categoriesConstants.TEST_CATEGORIES_REQUEST:
         draft.loading = true;
         break;
 
-      case dashboardConstants.TEST_DASHBOARD_SUCCESS:
+      case categoriesConstants.TEST_CATEGORIES_SUCCESS:
         draft.loading = false;
         draft.message = action.payload;
         break;
 
-      case dashboardConstants.TEST_DASHBOARD_FAILURE:
+      case categoriesConstants.TEST_CATEGORIES_FAILURE:
         draft.loading = false;
         draft.error = action.payload;
         break;
     }
   });
 
-export default dashboardReducer;
+export default categoriesReducer;

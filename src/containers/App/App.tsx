@@ -1,6 +1,6 @@
 import { Switch, Route } from "react-router-dom";
 
-import { DashboardPage } from "../Dashboard";
+import { CategoriesPage } from "../Categories/index";
 import { LoginPage } from "../Login/index";
 import { RegisterPage } from "../Register";
 import HomePage from "../Home/index";
@@ -13,7 +13,7 @@ function App() {
 
       <Switch>
         <Route exact path="/" component={HomePage} />
-        <Route exact path="/dashboard" component={DashboardPage} />
+        <Route exact path="/categories" component={CategoriesPage} />
         <Route path="/login" component={LoginPage} />
         <Route path="/register" component={RegisterPage} />
         {/* <Route component={NotFoundPage} /> */}

@@ -10,6 +10,8 @@ import {
   Container,
 } from "@material-ui/core";
 
+
+
 interface Category {
   id: number;
   name: string;
@@ -17,6 +19,7 @@ interface Category {
 }
 
 const CategoriesComponent: React.FC = () => {
+
   const [categories, setCategories] = useState<Category[]>([
     { id: 1, name: "Electronics", image: "https://picsum.photos/200" },
     { id: 2, name: "Books", image: "https://picsum.photos/200" },

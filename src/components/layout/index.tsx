@@ -20,13 +20,14 @@ import { CategoriesPage } from "../../containers/Categories";
 import { ProductsPage } from "../../containers/Products";
 import { OrdersPage } from "../../containers/Orders";
 import { OrderDetailsPage } from "../../containers/OrderDetails";
+import { UsersPage } from "../../containers/Users";
 
 const Categories = () => <CategoriesPage />;
 const Products = () => <ProductsPage />;
 const Orders = () => <OrdersPage />;
 const OrderDetails = () => <OrderDetailsPage />;
 
-const Users = () => <div>Users Page</div>;
+const Users = () => <UsersPage />;
 
 // Your page components
 
@@ -108,7 +109,7 @@ const LayoutComponent: React.FC = () => {
               </Route>
 
               <Route path="/order/:orderId">
-                <OrderDetailsPage />
+                <OrderDetails />
               </Route>
               <Route path="/users">
                 <Users />

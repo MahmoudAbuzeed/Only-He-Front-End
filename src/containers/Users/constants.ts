@@ -1,0 +1,11 @@
+/*
+ *
+ * USERS constants
+ *
+ */
+
+export const usersConstants = {
+  TEST_USERS_REQUEST: "TEST_USERS_REQUEST",
+  TEST_USERS_SUCCESS: "TEST_USERS_SUCCESS",
+  TEST_USERS_FAILURE: "TEST_USERS_FAILURE",
+};

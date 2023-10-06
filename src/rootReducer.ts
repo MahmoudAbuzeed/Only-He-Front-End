@@ -12,6 +12,7 @@ import registerReducer from "./containers/Register/reducer";
 import categoriesReducer from "./containers/Categories/reducer";
 import productsReducer from "./containers/Products/reducer";
 import ordersReducer from "./containers/Orders/reducer";
+import orderDetailsReducer from "./containers/OrderDetails/reducer";
 
 /**
  * Merges the main reducer with the router state and dynamically injected reducers
@@ -23,7 +24,8 @@ export default function createReducer(injectedReducers = {}) {
     register: registerReducer,
     categories: categoriesReducer,
     products: productsReducer,
-    ordders: ordersReducer,
+    orders: ordersReducer,
+    orderDetails: orderDetailsReducer,
     router: connectRouter(history),
     ...injectedReducers,
   });

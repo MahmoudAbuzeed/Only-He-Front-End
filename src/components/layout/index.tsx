@@ -19,10 +19,13 @@ import { useStyles } from "./styles";
 import { CategoriesPage } from "../../containers/Categories";
 import { ProductsPage } from "../../containers/Products";
 import { OrdersPage } from "../../containers/Orders";
+import { OrderDetailsPage } from "../../containers/OrderDetails";
 
 const Categories = () => <CategoriesPage />;
 const Products = () => <ProductsPage />;
 const Orders = () => <OrdersPage />;
+const OrderDetails = () => <OrderDetailsPage />;
+
 const Users = () => <div>Users Page</div>;
 
 // Your page components
@@ -99,8 +102,13 @@ const LayoutComponent: React.FC = () => {
               <Route path="/products">
                 <Products />
               </Route>
+
               <Route path="/orders">
                 <Orders />
+              </Route>
+
+              <Route path="/order/:orderId">
+                <OrderDetailsPage />
               </Route>
               <Route path="/users">
                 <Users />

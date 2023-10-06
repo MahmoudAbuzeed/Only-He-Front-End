@@ -14,6 +14,7 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 
 interface Order {
   id: number;
@@ -89,13 +90,11 @@ const OrdersComponent: React.FC = () => {
         </Button>
       </div>
 
-      <div style={{ height: 600, width: "100%", margin: "20px" }}>
-        <DataGrid<any>
-          rows={orders}
-          columns={columns}
-          onRowClick={(param) => history.push(`/order/${param.row.id}`)}
-        />
-      </div>
+      <DataGrid
+        rows={orders}
+        columns={columns}
+        onRowClick={(param) => history.push(`/order/${param.row.id}`)}
+      />
 
       {/* Dialog for Adding a New Order */}
       <Dialog open={openDialog} onClose={handleClose}>

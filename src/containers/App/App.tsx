@@ -6,6 +6,7 @@ import HomePage from "../Home/index";
 import LayoutComponent from "../../components/layout";
 import { ProductsPage } from "../Products";
 import { OrdersPage } from "../Orders";
+import { OrderDetailsPage } from "../OrderDetails";
 
 function App() {
   return (
@@ -31,6 +32,13 @@ function App() {
             <OrdersPage />
           </LayoutComponent>
         </Route>
+
+        <Route exact path="/order/:orderId">
+          <LayoutComponent>
+            <OrderDetailsPage />
+          </LayoutComponent>
+        </Route>
+
         <Route path="/login">
           <LayoutComponent>
             <LoginPage />

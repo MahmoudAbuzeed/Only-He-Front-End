@@ -5,6 +5,7 @@ import { RegisterPage } from "../Register";
 import HomePage from "../Home/index";
 import LayoutComponent from "../../components/layout";
 import { ProductsPage } from "../Products";
+import { OrdersPage } from "../Orders";
 
 function App() {
   return (
@@ -23,6 +24,11 @@ function App() {
         <Route exact path="/products">
           <LayoutComponent>
             <ProductsPage />
+          </LayoutComponent>
+        </Route>
+        <Route exact path="/orders">
+          <LayoutComponent>
+            <OrdersPage />
           </LayoutComponent>
         </Route>
         <Route path="/login">

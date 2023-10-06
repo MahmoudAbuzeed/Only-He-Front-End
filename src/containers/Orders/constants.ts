@@ -1,0 +1,11 @@
+/*
+ *
+ * ORDERS constants
+ *
+ */
+
+export const ordersConstants = {
+  TEST_ORDERS_REQUEST: "TEST_ORDERS_REQUEST",
+  TEST_ORDERS_SUCCESS: "TEST_ORDERS_SUCCESS",
+  TEST_ORDERS_FAILURE: "TEST_ORDERS_FAILURE",
+};

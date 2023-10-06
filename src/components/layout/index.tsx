@@ -18,11 +18,11 @@ import MailIcon from "@material-ui/icons/Mail";
 import { useStyles } from "./styles";
 import { CategoriesPage } from "../../containers/Categories";
 import { ProductsPage } from "../../containers/Products";
-
+import { OrdersPage } from "../../containers/Orders";
 
 const Categories = () => <CategoriesPage />;
 const Products = () => <ProductsPage />;
-const Orders = () => <div>Orders Page</div>;
+const Orders = () => <OrdersPage />;
 const Users = () => <div>Users Page</div>;
 
 // Your page components
@@ -63,7 +63,8 @@ const LayoutComponent: React.FC = () => {
           }}
         >
           <List>
-          {["Categories", "Products", "Orders", "Users"].map((text, index) => (
+            {["Categories", "Products", "Orders", "Users"].map(
+              (text, index) => (
                 <ListItem
                   button
                   key={text}

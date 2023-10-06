@@ -4,6 +4,7 @@ import watchLogin from "./containers/Login/saga";
 import watchRegister from "./containers/Register/saga";
 import watchCategories from "./containers/Categories/saga";
 import watchProducts from "./containers/Products/saga";
+import watchOrders from "./containers/Orders/saga";
 
 const root = function* rootSaga() {
   yield all([watchHome()]);
@@ -11,6 +12,7 @@ const root = function* rootSaga() {
   yield all([watchRegister()]);
   yield all([watchCategories()]);
   yield all([watchProducts()]);
+  yield all([watchOrders()]);
 };
 
 export default root;

@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Link,
+  useHistory,
+} from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -21,6 +27,7 @@ import { ProductsPage } from "../../containers/Products";
 import { OrdersPage } from "../../containers/Orders";
 import { OrderDetailsPage } from "../../containers/OrderDetails";
 import { UsersPage } from "../../containers/Users";
+import { Button } from "@mui/material";
 
 const Categories = () => <CategoriesPage />;
 const Products = () => <ProductsPage />;
@@ -29,15 +36,26 @@ const OrderDetails = () => <OrderDetailsPage />;
 
 const Users = () => <UsersPage />;
 
-// Your page components
+// Define a mapping between sidebar item text and their corresponding paths
+const sidebarItemPaths: Record<string, string> = {
+  Categories: "/categories",
+  Products: "/products",
+  Orders: "/orders",
+  Users: "/users",
+};
 
 const LayoutComponent: React.FC = () => {
   const classes = useStyles();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const history = useHistory();
 
-  const handleListItemClick = (index: number) => {
+  const handleListItemClick = (index: number, text: string) => {
     setSelectedIndex(index);
+    const destinationPath = sidebarItemPaths[text];
+    if (destinationPath && window.location.pathname !== destinationPath) {
+      history.push(destinationPath);
+    }
   };
 
   return (
@@ -67,31 +85,27 @@ const LayoutComponent: React.FC = () => {
           }}
         >
           <List>
-            {["Categories", "Products", "Orders", "Users"].map(
-              (text, index) => (
-                <ListItem
-                  button
-                  key={text}
-                  selected={selectedIndex === index}
-                  classes={
-                    selectedIndex === index
-                      ? { selected: classes.selected }
-                      : {}
-                  }
-                  onClick={() => handleListItemClick(index)}
-                  component={Link}
-                  to={text.toLowerCase()}
-                >
-                  <ListItemIcon>
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={text}
-                    classes={{ primary: classes.boldText }}
-                  />
-                </ListItem>
-              )
-            )}
+            {Object.keys(sidebarItemPaths).map((text, index) => (
+              <ListItem
+                button
+                key={text}
+                selected={selectedIndex === index}
+                classes={
+                  selectedIndex === index ? { selected: classes.selected } : {}
+                }
+                onClick={() => handleListItemClick(index, text)}
+                component={Link}
+                to={sidebarItemPaths[text]}
+              >
+                <ListItemIcon>
+                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                </ListItemIcon>
+                <ListItemText
+                  primary={text}
+                  classes={{ primary: classes.boldText }}
+                />
+              </ListItem>
+            ))}
           </List>
         </Drawer>
         <main className={classes.content}>
@@ -103,11 +117,9 @@ const LayoutComponent: React.FC = () => {
               <Route path="/products">
                 <Products />
               </Route>
-
               <Route path="/orders">
                 <Orders />
               </Route>
-
               <Route path="/order/:orderId">
                 <OrderDetails />
               </Route>

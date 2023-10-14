@@ -7,7 +7,6 @@ import LayoutComponent from "../../components/layout";
 import { ProductsPage } from "../Products";
 import { OrdersPage } from "../Orders";
 import { OrderDetailsPage } from "../OrderDetails";
-import UsersComponent from "../Users/usersComponent";
 import { UsersPage } from "../Users";
 
 function App() {

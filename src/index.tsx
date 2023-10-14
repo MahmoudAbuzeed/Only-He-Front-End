@@ -6,20 +6,27 @@ import { ConnectedRouter } from "connected-react-router";
 import { Provider } from "react-redux";
 import history from "./utils/history";
 import configureStore from "./configureStore";
+import { BrowserRouter as Router } from "react-router-dom";
 
 const initialState = {};
 const store = configureStore(initialState, history);
 const MOUNT_NODE = document.getElementById("root");
 
-ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <App />
-      </ConnectedRouter>
-    </Provider>
-  </React.StrictMode>,
-  MOUNT_NODE
-);
+// ReactDOM.render(
+//   <React.StrictMode>
+//     <Provider store={store}>
+//       <ConnectedRouter history={history}>
+//         <App />
+//       </ConnectedRouter>
+//     </Provider>
+//   </React.StrictMode>,
+//   MOUNT_NODE
+// );
 
+ReactDOM.render(
+  <Router>
+    <App />
+  </Router>,
+  document.getElementById("root")
+);
 reportWebVitals();

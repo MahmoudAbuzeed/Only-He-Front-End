@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import {
   Button,
@@ -8,9 +8,17 @@ import {
   DialogTitle,
   TextField,
   Container,
+  Grid,
+  useMediaQuery,
+  useTheme,
 } from "@material-ui/core";
-
-
+import { useAppDispatch, useAppSelector } from "../../app.hooks";
+import {
+  fetchCategories,
+  addNewCategory,
+  updateCategory,
+  deleteCategory,
+} from "./actions";
 
 interface Category {
   id: number;
@@ -19,25 +27,31 @@ interface Category {
 }
 
 const CategoriesComponent: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const categories = useAppSelector((state) => state.categories.data);
+  const status = useAppSelector((state) => state.categories.status);
+  console.log({ categories, status });
 
-  const [categories, setCategories] = useState<Category[]>([
-    { id: 1, name: "Electronics", image: "https://picsum.photos/200" },
-    { id: 2, name: "Books", image: "https://picsum.photos/200" },
-    { id: 4, name: "Clothing", image: "https://picsum.photos/200" },
-    { id: 5, name: "Clothing", image: "https://picsum.photos/200" },
-    { id: 6, name: "Clothing", image: "https://picsum.photos/200" },
-    { id: 7, name: "Clothing", image: "https://picsum.photos/200" },
-    { id: 8, name: "Clothing", image: "https://picsum.photos/200" },
-    { id: 9, name: "Clothing", image: "https://picsum.photos/200" },
-    { id: 10, name: "Clothing", image: "https://picsum.photos/200" },
-  ]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
-
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogType, setDialogType] = useState<"Add" | "Edit">("Add");
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
+
+  const categoriesWithDisplayId = categories.map((category: any, index) => ({
+    ...category,
+    displayId: index + 1, // Assigning sequential IDs starting from 1
+  }));
+
+  console.log({ categoriesWithDisplayId });
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,7 +65,7 @@ const CategoriesComponent: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 200 },
+    { field: "displayId", headerName: "ID", width: 200 },
     { field: "name", headerName: "Category Name", width: 400 },
     { field: "image", headerName: "Category Image", width: 300 },
     {
@@ -67,20 +81,22 @@ const CategoriesComponent: React.FC = () => {
         };
 
         const onClickDelete = () => {
-          setCategories((prev) =>
-            prev.filter((category) => category.id !== params.row.id)
-          );
+          dispatch(deleteCategory(params.row.id as number));
         };
 
         return (
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button color="primary" onClick={onClickEdit}>
-              Edit
-            </Button>
-            <Button color="secondary" onClick={onClickDelete}>
-              Delete
-            </Button>
-          </div>
+          <Grid container justifyContent="flex-end" spacing={isMobile ? 1 : 2}>
+            <Grid item>
+              <Button color="primary" onClick={onClickEdit}>
+                Edit
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button color="secondary" onClick={onClickDelete}>
+                Delete
+              </Button>
+            </Grid>
+          </Grid>
         );
       },
     },
@@ -92,41 +108,35 @@ const CategoriesComponent: React.FC = () => {
   };
 
   const handleSave = () => {
-    // Handle add/edit logic here, e.g., updating the categories state
-    if (dialogType === "Add") {
-      // Add new category
+    if (dialogType === "Add" && selectedCategory) {
+      dispatch(addNewCategory(selectedCategory));
     } else if (dialogType === "Edit" && selectedCategory) {
-      // Edit existing category
+      dispatch(updateCategory(selectedCategory));
     }
     handleClose();
   };
 
   return (
     <Container maxWidth="lg">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          margin: "1rem",
-        }}
-      >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            setDialogType("Add");
-            setOpenDialog(true);
-          }}
-        >
-          Add New Category
-        </Button>
+      <Grid container justifyContent="flex-end" style={{ margin: "1rem 0" }}>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              setDialogType("Add");
+              setOpenDialog(true);
+            }}
+          >
+            Add New Category
+          </Button>
+        </Grid>
+      </Grid>
+
+      <div style={{ height: 600, width: "100%", margin: "20px 0" }}>
+        <DataGrid autoHeight rows={categoriesWithDisplayId} columns={columns} />
       </div>
 
-      <div style={{ height: 600, width: "100%", margin: "20px" }}>
-        <DataGrid<any> rows={categories} columns={columns} />
-      </div>
-
-      {/* Dialog for Add/Edit */}
       <Dialog open={openDialog} onClose={handleClose}>
         <DialogTitle>{`${dialogType} Category`}</DialogTitle>
         <DialogContent>
@@ -147,7 +157,7 @@ const CategoriesComponent: React.FC = () => {
           />
           <input
             accept="image/*"
-            style={{ display: "none",}}
+            style={{ display: "none" }}
             id="image-upload"
             type="file"
             onChange={handleImageChange}
@@ -156,7 +166,8 @@ const CategoriesComponent: React.FC = () => {
             <Button variant="contained" color="primary" component="span">
               Upload Image
             </Button>
-           {'         '}{uploadedImage?.name}
+            {"    "}
+            {uploadedImage?.name}
           </label>
         </DialogContent>
         <DialogActions>

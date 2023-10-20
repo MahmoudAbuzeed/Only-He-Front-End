@@ -1,32 +1,10 @@
-/**
- * Create the store with dynamic reducers
- */
+import { configureStore } from "@reduxjs/toolkit";
+import rootReducer from "./rootReducer";
 
-import { createStore, applyMiddleware, compose } from "redux";
-import { routerMiddleware } from "connected-react-router";
-import createSagaMiddleware from "redux-saga";
-import createReducer from "./rootReducer";
-import rootSaga from "./rootSaga";
+const store = configureStore({
+  reducer: rootReducer,
+});
 
-declare global {
-  interface Window {
-    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
-  }
-}
-
-export default function configureStore(initialState = {}, history: any) {
-  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
-  const reduxSagaMonitorOptions = {};
-
-  const sagaMiddleware = createSagaMiddleware(reduxSagaMonitorOptions);
-
-  const middlewares = [sagaMiddleware, routerMiddleware(history)];
-
-  const enhancers = [applyMiddleware(...middlewares)];
-
-  const store: any = createStore(createReducer(), initialState, composeEnhancers(...enhancers));
-  sagaMiddleware.run(rootSaga);
-
-  return store;
-}
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof rootReducer>;
+export default store;

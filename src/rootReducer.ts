@@ -3,9 +3,7 @@
  */
 
 import { combineReducers } from "redux";
-import { connectRouter } from "connected-react-router";
 
-import history from "./utils/history";
 import homeReducer from "./containers/Home/reducer";
 import loginReducer from "./containers/Login/reducer";
 import registerReducer from "./containers/Register/reducer";
@@ -15,22 +13,17 @@ import ordersReducer from "./containers/Orders/reducer";
 import orderDetailsReducer from "./containers/OrderDetails/reducer";
 import usersReducer from "./containers/Users/reducer";
 
-/**
- * Merges the main reducer with the router state and dynamically injected reducers
- */
-export default function createReducer(injectedReducers = {}) {
-  const rootReducer = combineReducers({
-    home: homeReducer,
-    login: loginReducer,
-    register: registerReducer,
-    categories: categoriesReducer,
-    products: productsReducer,
-    orders: ordersReducer,
-    orderDetails: orderDetailsReducer,
-    users: usersReducer,
-    router: connectRouter(history),
-    ...injectedReducers,
-  });
+const rootReducer = combineReducers({
+  home: homeReducer,
+  login: loginReducer,
+  register: registerReducer,
+  categories: categoriesReducer,
+  products: productsReducer,
+  orders: ordersReducer,
+  orderDetails: orderDetailsReducer,
+  users: usersReducer,
+});
 
-  return rootReducer;
-}
+export default rootReducer;
+
+export type RootState = ReturnType<typeof rootReducer>;

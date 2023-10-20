@@ -10,8 +10,8 @@ import HomeComponent from "./homeComponent";
 export function HomePage(props: any): any {
   console.log("home", props.home);
   useEffect(() => {
-    // props.testAction();
-  }, []);
+    props?.testAction();
+  }, [props]);
   return <HomeComponent />;
 }
 

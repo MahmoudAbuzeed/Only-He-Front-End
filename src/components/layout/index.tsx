@@ -27,7 +27,6 @@ import { ProductsPage } from "../../containers/Products";
 import { OrdersPage } from "../../containers/Orders";
 import { OrderDetailsPage } from "../../containers/OrderDetails";
 import { UsersPage } from "../../containers/Users";
-import { Button } from "@mui/material";
 
 const Categories = () => <CategoriesPage />;
 const Products = () => <ProductsPage />;

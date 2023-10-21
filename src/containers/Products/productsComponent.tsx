@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import {
   Button,
@@ -6,138 +6,77 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
   Container,
+  Grid,
+  useMediaQuery,
+  useTheme,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@material-ui/core";
+import { useAppDispatch, useAppSelector } from "../../app.hooks";
+import {
+  fetchProducts,
+  addNewProduct,
+  updateProduct,
+  deleteProduct,
+} from "./actions";
+import { fetchCategories } from "../Categories/actions";
+import Slide from "@material-ui/core/Slide";
 
 interface Product {
   id: number;
   name: string;
   price: number;
   description: string;
-  category: string;
+  category: any;
   quantity: number;
-  customerPrice: number;
+  customer_price: number;
+  original_price: number;
   offer: number;
 }
 
 const ProductsComponent: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: 1,
-      name: "Laptop",
-      price: 1000,
-      description: "Laptop",
-      customerPrice: 900,
-      offer: 10,
-      category: "Electronics",
-      quantity: 10,
-    },
-    {
-      id: 2,
-      name: "Laptop",
-      price: 1000,
-      description: "Laptop",
-      customerPrice: 900,
-      offer: 10,
-      category: "Electronics",
-      quantity: 10,
-    },
-    {
-      id: 3,
-      name: "Laptop",
-      price: 1000,
-      description: "Laptop",
-      customerPrice: 900,
-      offer: 10,
-      category: "Electronics",
-      quantity: 10,
-    },
-    {
-      id: 4,
-      name: "Laptop",
-      price: 1000,
-      description: "Laptop",
-      customerPrice: 900,
-      offer: 10,
-      category: "Electronics",
-      quantity: 10,
-    },
-    {
-      id: 5,
-      name: "Laptop",
-      price: 1000,
-      description: "Laptop",
-      customerPrice: 900,
-      offer: 10,
-      category: "Electronics",
-      quantity: 10,
-    },
-    {
-      id: 6,
-      name: "test",
-      price: 23,
-      description: "test",
-      customerPrice: 900,
-      offer: 10,
-      category: "test",
-      quantity: 10,
-    },
-    {
-      id: 7,
-      name: "Laptop",
-      price: 1000,
-      description: "Laptop",
-      customerPrice: 900,
-      offer: 10,
-      category: "Electronics",
-      quantity: 10,
-    },
-    {
-      id: 8,
-      name: "Laptop",
-      price: 1000,
-      description: "Laptop",
-      customerPrice: 900,
-      offer: 10,
-      category: "Electronics",
-      quantity: 10,
-    },
-    {
-      id: 9,
-      name: "Laptop",
-      price: 1000,
-      description: "Laptop",
-      customerPrice: 900,
-      offer: 10,
-      category: "Electronics",
-      quantity: 10,
-    },
-    {
-      id: 10,
-      name: "Laptop",
-      price: 1000,
-      description: "Laptop",
-      customerPrice: 900,
-      offer: 10,
-      category: "Electronics",
-      quantity: 10,
-    },
-    // Add more initial products here
-  ]);
+  const dispatch = useAppDispatch();
+  const products = useAppSelector((state) => state.products.data);
+  const categories = useAppSelector((state) => state.categories.data);
 
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>({
+    id: 1,
+    name: "",
+    price: 1,
+    description: "",
+    category: "",
+    quantity: 1,
+    customer_price: 1,
+    original_price: 1,
+    offer: 1,
+  });
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogType, setDialogType] = useState<"Add" | "Edit">("Add");
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
+  const productsWithDisplayId = products.map((product: any, index) => ({
+    ...product,
+    displayId: index + 1,
+  }));
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 120 },
+    { field: "displayId", headerName: "ID", width: 120 },
     { field: "name", headerName: "Name", width: 120 },
     { field: "description", headerName: "Description", width: 120 },
     { field: "category", headerName: "Category", width: 120 },
     { field: "quantity", headerName: "Quantity", width: 120 },
     { field: "price", headerName: "Price", type: "number", width: 120 },
-    { field: "customerPrice", headerName: "Customer Price", width: 120 },
+    { field: "customer_price", headerName: "Customer Price", width: 120 },
     { field: "offer", headerName: "Offer", width: 120 },
     {
       field: "actions",
@@ -152,20 +91,22 @@ const ProductsComponent: React.FC = () => {
         };
 
         const onClickDelete = () => {
-          setProducts((prev) =>
-            prev.filter((product) => product.id !== params.row.id)
-          );
+          dispatch(deleteProduct(params.row.id as number));
         };
 
         return (
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button color="primary" onClick={onClickEdit}>
-              Edit
-            </Button>
-            <Button color="secondary" onClick={onClickDelete}>
-              Delete
-            </Button>
-          </div>
+          <Grid container justifyContent="flex-end" spacing={isMobile ? 1 : 2}>
+            <Grid item>
+              <Button color="primary" onClick={onClickEdit}>
+                Edit
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button color="secondary" onClick={onClickDelete}>
+                Delete
+              </Button>
+            </Grid>
+          </Grid>
         );
       },
     },
@@ -173,42 +114,58 @@ const ProductsComponent: React.FC = () => {
 
   const handleClose = () => {
     setOpenDialog(false);
-    setSelectedProduct(null);
+    setSelectedProduct({
+      id: 1,
+      name: "",
+      price: 1,
+      description: "",
+      category: "",
+      quantity: 1,
+      customer_price: 1,
+      original_price: 1,
+      offer: 1,
+    });
   };
 
   const handleSave = () => {
-    // Handle add/edit logic here, e.g., updating the products state
-    if (dialogType === "Add") {
-      // Add new product
+    if (dialogType === "Add" && selectedProduct) {
+      const category: any = categories.find(
+        (category: any) => category.name === selectedProduct.category
+      );
+      selectedProduct.category = category.id;
+      dispatch(addNewProduct(selectedProduct));
     } else if (dialogType === "Edit" && selectedProduct) {
-      // Edit existing product
+      dispatch(updateProduct(selectedProduct));
     }
     handleClose();
   };
 
   return (
     <Container maxWidth="lg">
-      <div
-        style={{ display: "flex", justifyContent: "flex-end", margin: "1rem" }}
+      <Grid container justifyContent="flex-end" style={{ margin: "1rem 0" }}>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              setDialogType("Add");
+              setOpenDialog(true);
+            }}
+          >
+            Add New Product
+          </Button>
+        </Grid>
+      </Grid>
+
+      <div style={{ height: 600, width: "100%", margin: "20px 0" }}>
+        <DataGrid autoHeight rows={productsWithDisplayId} columns={columns} />
+      </div>
+
+      <Dialog
+        open={openDialog}
+        onClose={handleClose}
+        TransitionComponent={Slide}
       >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            setDialogType("Add");
-            setOpenDialog(true);
-          }}
-        >
-          Add New Product
-        </Button>
-      </div>
-
-      <div style={{ height: 600, width: "100%", margin: "20px" }}>
-        <DataGrid<any> rows={products} columns={columns} />
-      </div>
-
-      {/* Dialog for Add/Edit */}
-      <Dialog open={openDialog} onClose={handleClose}>
         <DialogTitle>{`${dialogType} Product`}</DialogTitle>
         <DialogContent>
           <TextField
@@ -241,21 +198,28 @@ const ProductsComponent: React.FC = () => {
               })
             }
           />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="category"
-            label="Category"
-            type="text"
-            fullWidth
-            value={selectedProduct?.category || ""}
-            onChange={(e) =>
-              setSelectedProduct({
-                ...selectedProduct!,
-                category: e.target.value,
-              })
-            }
-          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="category-label">Category</InputLabel>
+            <Select
+              labelId="category-label"
+              id="category"
+              value={selectedProduct?.category || ""}
+              onChange={(e) =>
+                setSelectedProduct({
+                  ...selectedProduct!,
+                  category: e.target.value,
+                })
+              }
+            >
+              {/* Assuming categories is an array in your state and has an id and name property */}
+              {categories.map((category: any) => (
+                <MenuItem key={category.id} value={category.name}>
+                  {category.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <TextField
             autoFocus
             margin="dense"
@@ -263,7 +227,7 @@ const ProductsComponent: React.FC = () => {
             label="Quantity"
             type="number"
             fullWidth
-            value={selectedProduct?.quantity || 0}
+            value={selectedProduct?.quantity || 1}
             onChange={(e) =>
               setSelectedProduct({
                 ...selectedProduct!,
@@ -277,7 +241,7 @@ const ProductsComponent: React.FC = () => {
             label="Price"
             type="number"
             fullWidth
-            value={selectedProduct?.price || 0}
+            value={selectedProduct?.price || 1}
             onChange={(e) =>
               setSelectedProduct({
                 ...selectedProduct!,
@@ -291,11 +255,25 @@ const ProductsComponent: React.FC = () => {
             label="Customer Price"
             type="number"
             fullWidth
-            value={selectedProduct?.customerPrice || 0}
+            value={selectedProduct?.customer_price || 1}
             onChange={(e) =>
               setSelectedProduct({
                 ...selectedProduct!,
-                customerPrice: parseFloat(e.target.value),
+                customer_price: parseFloat(e.target.value),
+              })
+            }
+          />
+          <TextField
+            margin="dense"
+            id="originalPrice"
+            label="Original Price"
+            type="number"
+            fullWidth
+            value={selectedProduct?.original_price || 1}
+            onChange={(e) =>
+              setSelectedProduct({
+                ...selectedProduct!,
+                original_price: parseFloat(e.target.value),
               })
             }
           />
@@ -306,7 +284,7 @@ const ProductsComponent: React.FC = () => {
             label="Offer"
             type="number"
             fullWidth
-            value={selectedProduct?.offer || 0}
+            value={selectedProduct?.offer || 1}
             onChange={(e) =>
               setSelectedProduct({
                 ...selectedProduct!,

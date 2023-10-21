@@ -1,21 +1,10 @@
-// api.ts
-
 import axios from "axios";
-
-const BASE_URL = "http://localhost:3002/api/v1";
-// replace with your API base URL
+import { BASE_URL } from "../shared/configs";
 
 interface Category {
   id: number;
   name: string;
 }
-
-let categories: Category[] = [];
-
-const generateId = (): number => Math.max(...categories.map((c) => c.id)) + 1;
-
-const simulateDelay = <T>(data: T): Promise<T> =>
-  new Promise((resolve) => setTimeout(() => resolve(data), 500));
 
 export const api = {
   getCategories: async () => {

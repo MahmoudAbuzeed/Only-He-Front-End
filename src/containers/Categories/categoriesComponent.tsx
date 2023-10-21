@@ -11,6 +11,7 @@ import {
   Grid,
   useMediaQuery,
   useTheme,
+  Slide,
 } from "@material-ui/core";
 import { useAppDispatch, useAppSelector } from "../../app.hooks";
 import {
@@ -46,8 +47,6 @@ const CategoriesComponent: React.FC = () => {
     ...category,
     displayId: index + 1, // Assigning sequential IDs starting from 1
   }));
-
-  console.log({ categoriesWithDisplayId });
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -137,7 +136,11 @@ const CategoriesComponent: React.FC = () => {
         <DataGrid autoHeight rows={categoriesWithDisplayId} columns={columns} />
       </div>
 
-      <Dialog open={openDialog} onClose={handleClose}>
+      <Dialog
+        open={openDialog}
+        onClose={handleClose}
+        TransitionComponent={Slide}
+      >
         <DialogTitle>{`${dialogType} Category`}</DialogTitle>
         <DialogContent>
           <TextField

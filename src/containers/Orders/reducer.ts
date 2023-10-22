@@ -1,35 +1,43 @@
-/*
- *
- * orders reducer
- *
- */
-import produce from "immer";
-import { ordersConstants } from "./constants";
+// reducer.ts
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchOrders, addNewOrder, updateOrder, deleteOrder } from "./actions"; // path to your actions file
 
-export const initialState = {
-  loading: false,
-  error: null,
-  message: "",
-};
+const ordersSlice = createSlice({
+  name: "orders",
+  initialState: { data: [], status: "idle", error: null },
+  reducers: {
+    // ... any other synchronous reducers ...
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchOrders.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchOrders.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.data = action.payload as any;
+      })
+      .addCase(fetchOrders.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message as any;
+      })
+      .addCase(addNewOrder.fulfilled, (state: any, action) => {
+        state.data.push(action.payload);
+      })
+      .addCase(updateOrder.fulfilled, (state: any, action: any) => {
+        const index = state.data.findIndex(
+          (order: any) => order.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.data[index] = action.payload;
+        }
+      })
+      .addCase(deleteOrder.fulfilled, (state, action) => {
+        state.data = state.data.filter(
+          (order: any) => order.id !== action.payload
+        );
+      });
+  },
+});
 
-/* eslint-disable default-case, no-param-reassign */
-const ordersReducer = (state = initialState, action: any) =>
-  produce(state, (draft) => {
-    switch (action.type) {
-      case ordersConstants.TEST_ORDERS_REQUEST:
-        draft.loading = true;
-        break;
-
-      case ordersConstants.TEST_ORDERS_SUCCESS:
-        draft.loading = false;
-        draft.message = action.payload;
-        break;
-
-      case ordersConstants.TEST_ORDERS_FAILURE:
-        draft.loading = false;
-        draft.error = action.payload;
-        break;
-    }
-  });
-
-export default ordersReducer;
+export default ordersSlice.reducer;

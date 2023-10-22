@@ -95,7 +95,11 @@ const ProductsComponent: React.FC = () => {
         };
 
         return (
-          <Grid container justifyContent="flex-end" spacing={isMobile ? 1 : 2}>
+          <Grid
+            container
+            justifyContent="flex-start"
+            spacing={isMobile ? 1 : 2}
+          >
             <Grid item>
               <Button color="primary" onClick={onClickEdit}>
                 Edit

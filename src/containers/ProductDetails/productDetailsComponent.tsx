@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import {
   Container,
   Paper,
@@ -9,7 +9,7 @@ import {
   Button,
   CircularProgress,
 } from "@material-ui/core";
-import { fetchProductById, updateProduct } from "./actions";
+import { deleteProduct, fetchProductById, updateProduct } from "./actions";
 import { useAppDispatch, useAppSelector } from "../../app.hooks";
 import { makeStyles } from "@material-ui/core/styles";
 import Fade from "@material-ui/core/Fade";
@@ -19,6 +19,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import TextField from "@material-ui/core/TextField";
 import { GridCloseIcon } from "@mui/x-data-grid";
+import { fetchProducts } from "../Products/actions";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -61,17 +62,17 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
     width: "100px",
     height: "100px",
-    overflow: "visible", // Allow the scaled image to overflow
+    overflow: "visible",
     borderRadius: theme.shape.borderRadius,
-    transition: "transform 0.3s ease", // Transition for scaling
+    transition: "transform 0.3s ease",
     "&:hover": {
-      transform: "scale(1.5)", // Scale the container (and thus the image)
-      zIndex: 1, // Ensure the scaled image is above other elements
+      transform: "scale(1.5)",
+      zIndex: 1,
       "& $image": {
-        boxShadow: `0px 0px 10px ${theme.palette.grey[500]}`, // Shadow on the image
+        boxShadow: `0px 0px 10px ${theme.palette.grey[500]}`,
       },
       "& $closeIcon": {
-        display: "block", // Show the close icon
+        display: "block",
       },
     },
   },
@@ -79,8 +80,8 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "100%",
     objectFit: "cover",
-    borderRadius: theme.shape.borderRadius, // Match container's border radius
-    transition: "box-shadow 0.3s ease", // Transition for shadow
+    borderRadius: theme.shape.borderRadius,
+    transition: "box-shadow 0.3s ease",
   },
   closeIcon: {
     display: "none",
@@ -100,6 +101,7 @@ const ProductDetailsComponent = () => {
   const classes = useStyles();
   const { productId }: any = useParams();
   const dispatch = useAppDispatch();
+  const history = useHistory();
 
   const product = useAppSelector((state) => state.product.data);
   const [openEditDialog, setOpenEditDialog] = React.useState(false);
@@ -107,6 +109,7 @@ const ProductDetailsComponent = () => {
   const [selectedImages, setSelectedImages] = React.useState<string[]>([]);
   const [imageFiles, setImageFiles] = React.useState<File[]>([]);
   const [productImages, setProductImages] = React.useState([]);
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
 
   useEffect(() => {
     dispatch(fetchProductById(Number(productId)));
@@ -117,16 +120,15 @@ const ProductDetailsComponent = () => {
   }, [product]);
 
   useEffect(() => {
-    // Assuming product.images is an array of image URLs
     if (product && product.images) {
       setSelectedImages(product.images);
     }
   }, [product]);
 
   const handleOpenEditDialog = () => {
-    // Reset selected images when opening the dialog
     setSelectedImages(product.images || []);
     setImageFiles([]);
+    setEditData({ ...product }); // Initialize editData with the complete product data
     setOpenEditDialog(true);
   };
 
@@ -166,9 +168,7 @@ const ProductDetailsComponent = () => {
     );
   }
 
-  const handleCloseEditDialog = () => {
-    setOpenEditDialog(false);
-  };
+  const handleCloseEditDialog = () => setOpenEditDialog(false);
 
   if (!editData) {
     return (
@@ -209,16 +209,36 @@ const ProductDetailsComponent = () => {
 
   const handleEditChange = (e: any) => {
     const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
+    setEditData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleRemoveProductImage = (index: any) => {
-    // Create a new array without the removed image
     const updatedImages = productImages.filter(
       (_, imgIndex) => imgIndex !== index
     );
     setProductImages(updatedImages);
   };
+
+  const handleOpenDeleteDialog = () => setOpenDeleteDialog(true);
+  const handleCloseDeleteDialog = () => setOpenDeleteDialog(false);
+
+  const handleConfirmDelete = () => {
+    dispatch(deleteProduct(productId))
+      .then(() => {
+        dispatch(fetchProducts());
+        history.push(`/products`);
+      })
+      .catch((error) => {
+        console.error("Error deleting product:", error);
+      });
+
+    handleCloseDeleteDialog();
+  };
+
+  console.log({ editData });
 
   return (
     <Container maxWidth="md" style={{ padding: "2rem" }}>
@@ -260,7 +280,7 @@ const ProductDetailsComponent = () => {
         variant="contained"
         color="secondary"
         className={classes.button}
-        // TODO: Add onClick event for delete functionality
+        onClick={handleOpenDeleteDialog}
       >
         Delete
       </Button>
@@ -375,6 +395,25 @@ const ProductDetailsComponent = () => {
           </Button>
           <Button onClick={handleSaveEdit} color="primary">
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        aria-labelledby="alert-dialog-title"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this product?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="primary" autoFocus>
+            Confirm
           </Button>
         </DialogActions>
       </Dialog>

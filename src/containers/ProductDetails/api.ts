@@ -16,9 +16,9 @@ export const api = {
     }
   },
 
-  createProduct: async (name: any) => {
+  createProduct: async (newProduct: any) => {
     const product = {
-      ...name,
+      ...newProduct,
       image: "src/assets/images/1.jpg",
     };
 
@@ -33,6 +33,12 @@ export const api = {
   updateProduct: async (product: any) => {
     const productToUpdate = {
       name: product.name,
+      description: product.description,
+      price: product.price,
+      quantity: product.quantity,
+      offer: product.offer,
+      original_price: product.original_price,
+      customer_price: product.customer_price,
       image: product.image,
     };
     try {

@@ -25,16 +25,15 @@ export const fetchProductById = createAsyncThunk(
 
 export const addNewProduct = createAsyncThunk(
   "product/addNewProduct",
-  async (name: any) => {
-    console.log("name", name);
-    const response = await api.createProduct(name);
+  async (product: any) => {
+    const response = await api.createProduct(product);
     return response;
   }
 );
 
 export const updateProduct = createAsyncThunk(
   "product/updateProduct",
-  async (product: { id: number; name: string }) => {
+  async (product: any) => {
     const response = await api.updateProduct(product);
     return response;
   }

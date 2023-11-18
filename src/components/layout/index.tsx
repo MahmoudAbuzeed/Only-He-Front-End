@@ -27,11 +27,13 @@ import { ProductsPage } from "../../containers/Products";
 import { OrdersPage } from "../../containers/Orders";
 import { OrderDetailsPage } from "../../containers/OrderDetails";
 import { UsersPage } from "../../containers/Users";
+import ProductDetailsPage from "../../containers/ProductDetails";
 
 const Categories = () => <CategoriesPage />;
 const Products = () => <ProductsPage />;
 const Orders = () => <OrdersPage />;
 const OrderDetails = () => <OrderDetailsPage />;
+const ProductDetails = () => <ProductDetailsPage />;
 
 const Users = () => <UsersPage />;
 
@@ -110,19 +112,22 @@ const LayoutComponent: React.FC = () => {
         <main className={classes.content}>
           <div style={{ marginTop: "64px" }}>
             <Switch>
-              <Route path="/categories">
+              <Route exact path="/categories">
                 <Categories />
               </Route>
-              <Route path="/products">
+              <Route exact path="/products">
                 <Products />
               </Route>
-              <Route path="/orders">
+              <Route exact path="/products/:productId">
+                <ProductDetails />
+              </Route>
+              <Route exact path="/orders">
                 <Orders />
               </Route>
-              <Route path="/order/:orderId">
+              <Route exact path="/order/:orderId">
                 <OrderDetails />
               </Route>
-              <Route path="/users">
+              <Route exact path="/users">
                 <Users />
               </Route>
             </Switch>

@@ -25,6 +25,7 @@ import {
 } from "./actions";
 import { fetchCategories } from "../Categories/actions";
 import Slide from "@material-ui/core/Slide";
+import { useHistory } from "react-router";
 
 interface Product {
   id: number;
@@ -57,8 +58,8 @@ const ProductsComponent: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogType, setDialogType] = useState<"Add" | "Edit">("Add");
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
+  const history = useHistory();
+
   const productsWithDisplayId = products.map((product: any, index) => ({
     ...product,
     displayId: index + 1,
@@ -84,33 +85,14 @@ const ProductsComponent: React.FC = () => {
       sortable: false,
       flex: 1,
       renderCell: (params) => {
-        const onClickEdit = () => {
-          setDialogType("Edit");
-          setSelectedProduct(params.row as Product);
-          setOpenDialog(true);
-        };
-
-        const onClickDelete = () => {
-          dispatch(deleteProduct(params.row.id as number));
+        const onShowDetails = () => {
+          history.push(`/products/${params.row.id}`);
         };
 
         return (
-          <Grid
-            container
-            justifyContent="flex-start"
-            spacing={isMobile ? 1 : 2}
-          >
-            <Grid item>
-              <Button color="primary" onClick={onClickEdit}>
-                Edit
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button color="secondary" onClick={onClickDelete}>
-                Delete
-              </Button>
-            </Grid>
-          </Grid>
+          <Button color="primary" onClick={onShowDetails}>
+            Show
+          </Button>
         );
       },
     },

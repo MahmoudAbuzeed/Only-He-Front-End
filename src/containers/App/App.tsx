@@ -8,6 +8,7 @@ import { ProductsPage } from "../Products";
 import { OrdersPage } from "../Orders";
 import { OrderDetailsPage } from "../OrderDetails";
 import { UsersPage } from "../Users";
+import ProductDetailsPage from "../ProductDetails";
 
 function App() {
   return (
@@ -26,6 +27,12 @@ function App() {
         <Route exact path="/products">
           <LayoutComponent>
             <ProductsPage />
+          </LayoutComponent>
+        </Route>
+
+        <Route exact path="/products/:productId">
+          <LayoutComponent>
+            <ProductDetailsPage />
           </LayoutComponent>
         </Route>
         <Route exact path="/orders">

@@ -28,13 +28,14 @@ import { OrdersPage } from "../../containers/Orders";
 import { OrderDetailsPage } from "../../containers/OrderDetails";
 import { UsersPage } from "../../containers/Users";
 import ProductDetailsPage from "../../containers/ProductDetails";
+import LoginComponent from "../../containers/Login/loginComponent";
 
+const ProductDetails = () => <ProductDetailsPage />;
+const OrderDetails = () => <OrderDetailsPage />;
 const Categories = () => <CategoriesPage />;
 const Products = () => <ProductsPage />;
+const Login = () => <LoginComponent />;
 const Orders = () => <OrdersPage />;
-const OrderDetails = () => <OrderDetailsPage />;
-const ProductDetails = () => <ProductDetailsPage />;
-
 const Users = () => <UsersPage />;
 
 // Define a mapping between sidebar item text and their corresponding paths
@@ -43,6 +44,7 @@ const sidebarItemPaths: Record<string, string> = {
   Products: "/products",
   Orders: "/orders",
   Users: "/users",
+  Login: "/login",
 };
 
 const LayoutComponent: React.FC = () => {
@@ -129,6 +131,9 @@ const LayoutComponent: React.FC = () => {
               </Route>
               <Route exact path="/users">
                 <Users />
+              </Route>
+              <Route exact path="/login">
+                <Login />
               </Route>
             </Switch>
           </div>

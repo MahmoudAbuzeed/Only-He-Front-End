@@ -18,8 +18,9 @@ import {
   useMediaQuery,
 } from "@material-ui/core";
 import { useAppDispatch, useAppSelector } from "../../app.hooks";
-import { fetchOrders, addNewOrder, updateOrder, deleteOrder } from "./actions";
+import { fetchOrders, addNewOrder } from "./actions";
 import { fetchProducts } from "../Products/actions";
+import { useHistory } from "react-router";
 
 interface Order {
   id: number;
@@ -49,8 +50,7 @@ const OrdersComponent: React.FC = () => {
     []
   );
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
+  const history = useHistory();
 
   const ordersWithDisplayId = orders.map((order: any, index) => ({
     ...order,
@@ -74,33 +74,12 @@ const OrdersComponent: React.FC = () => {
       sortable: false,
       flex: 1,
       renderCell: (params) => {
-        const onClickEdit = () => {
-          setDialogType("Edit");
-          setSelectedOrder(params.row as Order);
-          setOpenDialog(true);
-        };
-
-        const onClickDelete = () => {
-          dispatch(deleteOrder(params.row.id as number));
-        };
+        const onShowDetails = () => history.push(`/orders/${params.row.id}`);
 
         return (
-          <Grid
-            container
-            justifyContent="flex-start"
-            spacing={isMobile ? 1 : 2}
-          >
-            <Grid item>
-              <Button color="primary" onClick={onClickEdit}>
-                Edit
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button color="secondary" onClick={onClickDelete}>
-                Delete
-              </Button>
-            </Grid>
-          </Grid>
+          <Button color="primary" onClick={onShowDetails}>
+            Show
+          </Button>
         );
       },
     },
@@ -112,7 +91,7 @@ const OrdersComponent: React.FC = () => {
   };
 
   const handleSave = () => {
-    if (dialogType === "Add" && selectedOrder) {
+    if (selectedOrder) {
       const productsIds = selectedOrder.products.map((product) => {
         const productObj: any = products.find((p: any) => p.name === product);
         return productObj?.id;
@@ -121,8 +100,6 @@ const OrdersComponent: React.FC = () => {
       selectedOrder.status = "PENDING";
       console.log({ selectedOrder });
       dispatch(addNewOrder(selectedOrder));
-    } else if (dialogType === "Edit" && selectedOrder) {
-      dispatch(updateOrder(selectedOrder as any));
     }
     handleClose();
   };

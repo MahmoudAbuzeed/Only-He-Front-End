@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Paper,
@@ -7,9 +7,9 @@ import {
   ListItem,
   ListItemText,
   Button,
-  FormControl,
   InputLabel,
   Select,
+  FormControl,
   MenuItem,
   Grid,
   Stepper,
@@ -22,7 +22,13 @@ import {
   DialogContentText,
   Dialog,
   DialogActions,
+  TextField,
+  Input,
 } from "@material-ui/core";
+import { useAppDispatch, useAppSelector } from "../../app.hooks";
+import { useParams } from "react-router";
+import { fetchOrderById, updateOrder } from "./actions";
+import { fetchProducts } from "../Products/actions";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -78,39 +84,47 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const OrderDetailsComponent: React.FC<{ orderDetails: any }> = ({
-  orderDetails,
-}) => {
-  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
-  const [status, setStatus] = useState("Pending");
-  const classes = useStyles();
+const OrderDetailsComponent = () => {
+  const orderDetails = useAppSelector((state) => state.orderDetails.data);
+  const products = useAppSelector((state) => state.products.data);
 
+  const [availableProducts, setAvailableProducts] = useState<any>(products);
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [openAddProductDialog, setOpenAddProductDialog] = useState(false);
   const [isOrderCancelled, setIsOrderCancelled] = useState(false);
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [status, setStatus] = useState("Pending");
+  const { orderId }: any = useParams();
+  const dispatch = useAppDispatch();
+  const classes = useStyles();
 
-  // ... other methods
+  const [newProduct, setNewProduct] = useState("");
+  const [newQuantity, setNewQuantity] = useState(1);
+  const [dialogOrderItems, setDialogOrderItems] = useState<any>(
+    orderDetails?.orderItems
+  );
 
-  const handleCancelOrder = () => {
-    setOpenCancelDialog(true);
-  };
+  useEffect(() => {
+    dispatch(fetchOrderById(Number(orderId)));
+  }, [dispatch, orderId]);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   const confirmCancelOrder = () => {
     setIsOrderCancelled(true);
     setOpenCancelDialog(false);
-    console.log("Order cancelled");
   };
 
-  const closeCancelDialog = () => {
-    setOpenCancelDialog(false);
-  };
-
-  const handleProductClick = (product: any) => {
-    setSelectedProduct(product);
-  };
-
-  const handleCloseDialog = () => {
-    setSelectedProduct(null);
-  };
+  const handleProductClick = (product: any) => setSelectedProduct(product);
+  const handleCloseAddProductDialog = () => setOpenAddProductDialog(false);
+  const handleOpenAddProductDialog = () => setOpenAddProductDialog(true);
+  const closeCancelDialog = () => setOpenCancelDialog(false);
+  const handleOpenEditDialog = () => setOpenEditDialog(true);
+  const handleCancelOrder = () => setOpenCancelDialog(true);
+  const handleCloseDialog = () => setSelectedProduct(null);
 
   const handleStatusChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setStatus(event.target.value as string);
@@ -118,8 +132,47 @@ const OrderDetailsComponent: React.FC<{ orderDetails: any }> = ({
 
   const steps = ["Pending", "Processing", "Shipped", "Delivered"];
 
-  const getStepIndex = (status: any) => {
-    return steps.indexOf(status);
+  const getStepIndex = (status: any) => steps.indexOf(status);
+
+  const handleAddProductToOrder = () => {
+    const productToAdd = {
+      name: newProduct,
+      quantity: newQuantity,
+    };
+
+    // Check if the product already exists in the list
+    const existingProductIndex = dialogOrderItems.findIndex(
+      (item: any) => item.name === newProduct
+    );
+
+    if (existingProductIndex !== -1) {
+      // Product exists, update the quantity
+      const updatedOrderItems = dialogOrderItems.map(
+        (item: any, index: number) =>
+          index === existingProductIndex
+            ? { ...item, quantity: item.quantity + newQuantity }
+            : item
+      );
+      setDialogOrderItems(updatedOrderItems);
+    } else {
+      setDialogOrderItems([...dialogOrderItems, productToAdd]);
+    }
+
+    handleCloseAddProductDialog();
+  };
+
+  const closeEditDialog = () => {
+    setOpenEditDialog(false);
+    setDialogOrderItems(orderDetails.orderItems);
+  };
+
+  const handleSaveChanges = () => {
+    const updatedOrder = {
+      ...orderDetails,
+      status,
+      orderItems: dialogOrderItems,
+    };
+    dispatch(updateOrder(updatedOrder));
   };
 
   return (
@@ -139,19 +192,20 @@ const OrderDetailsComponent: React.FC<{ orderDetails: any }> = ({
             >
               <Grid item style={{ padding: "30px" }}>
                 <Typography variant="body1">
-                  <strong>Order ID: {orderDetails.orderId}</strong>
+                  <strong>Order ID: {orderDetails.id}</strong>
                 </Typography>
               </Grid>
               <Grid item>
                 <Typography variant="body1">
                   <strong>
-                    Date: {new Date(orderDetails.date).toLocaleDateString()}
+                    Date:{" "}
+                    {new Date(orderDetails.created_at).toLocaleDateString()}
                   </strong>
                 </Typography>
               </Grid>
               <Grid item>
                 <Typography variant="body1">
-                  <strong>Customer: {orderDetails.customerName}</strong>
+                  <strong>Customer: {orderDetails.user}</strong>
                 </Typography>
               </Grid>
             </Grid>
@@ -162,7 +216,7 @@ const OrderDetailsComponent: React.FC<{ orderDetails: any }> = ({
               </Typography>
 
               <Grid container spacing={2}>
-                {orderDetails.products.map((product: any, index: any) => (
+                {orderDetails?.orderItems.map((product: any, index: any) => (
                   <Grid item xs={2} key={index}>
                     <ListItem
                       button
@@ -208,8 +262,17 @@ const OrderDetailsComponent: React.FC<{ orderDetails: any }> = ({
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h5" className={classes.totalAmount}>
-                Total Amount: ${orderDetails.totalAmount.toFixed(2)}
+                Total Price: ${orderDetails.total_price.toFixed(2)}
               </Typography>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleOpenEditDialog}
+                className={classes.actionButton}
+              >
+                Edit Order
+              </Button>
+              &nbsp;&nbsp; &nbsp;&nbsp;
               <Button
                 variant="contained"
                 color="secondary"
@@ -218,7 +281,6 @@ const OrderDetailsComponent: React.FC<{ orderDetails: any }> = ({
               >
                 Cancel Order
               </Button>
-
               {/* Cancel Order Confirmation Dialog */}
               <Dialog
                 open={openCancelDialog}
@@ -258,6 +320,187 @@ const OrderDetailsComponent: React.FC<{ orderDetails: any }> = ({
                   Price: ${selectedProduct?.price.toFixed(2)}
                 </DialogContentText>
               </DialogContent>
+            </Dialog>
+
+            <Dialog
+              open={openEditDialog}
+              onClose={() => setOpenEditDialog(false)}
+              fullWidth
+              maxWidth="lg"
+              TransitionComponent={Grow}
+            >
+              <DialogTitle className={classes.title}>Edit Order</DialogTitle>
+              <DialogContent className={classes.content}>
+                <Grid container spacing={2}>
+                  {/* Order ID - Read Only */}
+                  <Grid item xs={6}>
+                    <TextField
+                      label="Order ID"
+                      variant="outlined"
+                      fullWidth
+                      value={orderDetails.id}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </Grid>
+                  {/* Date - Read Only */}
+                  <Grid item xs={6}>
+                    <TextField
+                      label="Date"
+                      variant="outlined"
+                      fullWidth
+                      value={new Date(
+                        orderDetails.created_at
+                      ).toLocaleDateString()}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </Grid>
+
+                  {/* Customer Information */}
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      label="Customer Name"
+                      variant="outlined"
+                      fullWidth
+                      value={orderDetails.user}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </Grid>
+                  {/* Status Selection */}
+                  <Grid item xs={6}>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel>Status</InputLabel>
+                      <Select
+                        value={status}
+                        onChange={handleStatusChange}
+                        label="Status"
+                      >
+                        {steps.map((step) => (
+                          <MenuItem key={step} value={step}>
+                            {step}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  {/* Products List */}
+                  {dialogOrderItems.map((product: any, index: number) => (
+                    <React.Fragment key={index}>
+                      <Grid item xs={10} md={11}>
+                        <TextField
+                          label="Product Name"
+                          variant="outlined"
+                          fullWidth
+                          value={product.name}
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={2} md={1} key={index}>
+                        <TextField
+                          label="Quantity"
+                          type="number"
+                          variant="outlined"
+                          fullWidth
+                          value={product.quantity}
+                          onChange={(e) => {
+                            const newQuantity = parseInt(e.target.value, 10);
+                            const updatedOrderItems = dialogOrderItems.map(
+                              (item: any, idx: number) =>
+                                idx === index
+                                  ? { ...item, quantity: newQuantity }
+                                  : item
+                            );
+                            setDialogOrderItems(updatedOrderItems);
+                          }}
+                        />
+                      </Grid>
+                    </React.Fragment>
+                  ))}
+
+                  {/* Add New Product Button */}
+                  <Grid item xs={12}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleOpenAddProductDialog}
+                    >
+                      Add Product
+                    </Button>
+                  </Grid>
+                </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  onClick={() => {
+                    closeEditDialog();
+                  }}
+                  color="primary"
+                >
+                  Cancel
+                </Button>
+                <Button onClick={() => handleSaveChanges()} color="secondary">
+                  Save Changes
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            <Dialog
+              open={openAddProductDialog}
+              onClose={handleCloseAddProductDialog}
+              aria-labelledby="form-dialog-title"
+            >
+              <DialogTitle id="form-dialog-title">Add Product</DialogTitle>
+              <DialogContent>
+                <Grid container spacing={2}>
+                  {" "}
+                  {/* Spacing between grid items */}
+                  <Grid item xs={12}>
+                    <FormControl fullWidth>
+                      <InputLabel>Product</InputLabel>
+                      <Select
+                        value={newProduct}
+                        onChange={(e: any) => setNewProduct(e.target.value)}
+                      >
+                        {availableProducts.map(
+                          (product: any, index: number) => (
+                            <MenuItem key={index} value={product.name}>
+                              {product.name}
+                            </MenuItem>
+                          )
+                        )}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControl fullWidth>
+                      <InputLabel>Quantity</InputLabel>
+                      <Input
+                        type="number"
+                        value={newQuantity}
+                        onChange={(e) =>
+                          setNewQuantity(parseInt(e.target.value, 10))
+                        }
+                      />
+                    </FormControl>
+                  </Grid>
+                </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseAddProductDialog} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={handleAddProductToOrder} color="primary">
+                  Add
+                </Button>
+              </DialogActions>
             </Dialog>
           </Grid>
         </Paper>

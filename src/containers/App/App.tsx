@@ -41,7 +41,7 @@ function App() {
           </LayoutComponent>
         </Route>
 
-        <Route exact path="/order/:orderId">
+        <Route exact path="/orders/:orderId">
           <LayoutComponent>
             <OrderDetailsPage />
           </LayoutComponent>

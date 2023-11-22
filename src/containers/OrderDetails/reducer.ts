@@ -1,35 +1,55 @@
-/*
- *
- * orderDetails reducer
- *
- */
-import produce from "immer";
-import { orderDetailsConstants } from "./constants";
+// reducer.ts
+import { createSlice } from "@reduxjs/toolkit";
+import { updateOrder, deleteOrder, fetchOrderById } from "./actions"; // path to your actions file
 
-export const initialState = {
-  loading: false,
-  error: null,
-  message: "",
-};
+const ordersSlice = createSlice({
+  name: "order",
+  initialState: {
+    data: {
+      id: 0,
+      status: "",
+      total_price: 0,
+      created_at: "",
+      user: "",
+      orderItems: [
+        {
+          id: 0,
+          name: "",
+          description: "",
+          price: 0,
+          quantity: 0,
+          offer: 0,
+          customer_price: 0,
+          original_price: 0,
+          created_at: "",
+          updated_at: "",
+        },
+      ],
+    },
+    status: "idle",
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchOrderById.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchOrderById.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.data = action.payload as any;
+      })
+      .addCase(fetchOrderById.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message as any;
+      })
+      .addCase(updateOrder.fulfilled, (state: any, action: any) => {
+        state.data = action.payload;
+      })
+      .addCase(deleteOrder.fulfilled, (state, action) => {
+        state.data = action.payload;
+      });
+  },
+});
 
-/* eslint-disable default-case, no-param-reassign */
-const orderDetailsReducer = (state = initialState, action: any) =>
-  produce(state, (draft) => {
-    switch (action.type) {
-      case orderDetailsConstants.TEST_ORDER_DETAILS_REQUEST:
-        draft.loading = true;
-        break;
-
-      case orderDetailsConstants.TEST_ORDER_DETAILS_SUCCESS:
-        draft.loading = false;
-        draft.message = action.payload;
-        break;
-
-      case orderDetailsConstants.TEST_ORDER_DETAILS_FAILURE:
-        draft.loading = false;
-        draft.error = action.payload;
-        break;
-    }
-  });
-
-export default orderDetailsReducer;
+export default ordersSlice.reducer;

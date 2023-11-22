@@ -8,8 +8,6 @@ import {
   DialogTitle,
   Container,
   Grid,
-  useMediaQuery,
-  useTheme,
   TextField,
   FormControl,
   InputLabel,
@@ -17,12 +15,7 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import { useAppDispatch, useAppSelector } from "../../app.hooks";
-import {
-  fetchProducts,
-  addNewProduct,
-  updateProduct,
-  deleteProduct,
-} from "./actions";
+import { fetchProducts, addNewProduct } from "./actions";
 import { fetchCategories } from "../Categories/actions";
 import Slide from "@material-ui/core/Slide";
 import { useHistory } from "react-router";
@@ -114,14 +107,12 @@ const ProductsComponent: React.FC = () => {
   };
 
   const handleSave = () => {
-    if (dialogType === "Add" && selectedProduct) {
+    if (selectedProduct) {
       const category: any = categories.find(
         (category: any) => category.name === selectedProduct.category
       );
       selectedProduct.category = category.id;
       dispatch(addNewProduct(selectedProduct));
-    } else if (dialogType === "Edit" && selectedProduct) {
-      dispatch(updateProduct(selectedProduct));
     }
     handleClose();
   };

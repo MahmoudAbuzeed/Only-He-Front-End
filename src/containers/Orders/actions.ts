@@ -72,28 +72,6 @@ const ordersSlice = createSlice({
       .addCase(addNewOrder.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message as any;
-      })
-      .addCase(updateOrder.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(updateOrder.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.data.push(action.payload);
-      })
-      .addCase(updateOrder.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message as any;
-      })
-      .addCase(deleteOrder.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(deleteOrder.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.data = state.data.filter((order) => order.id !== action.payload);
-      })
-      .addCase(deleteOrder.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message as any;
       });
   },
 });

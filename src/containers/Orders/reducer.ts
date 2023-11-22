@@ -1,13 +1,11 @@
 // reducer.ts
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchOrders, addNewOrder, updateOrder, deleteOrder } from "./actions"; // path to your actions file
+import { fetchOrders, addNewOrder } from "./actions"; // path to your actions file
 
 const ordersSlice = createSlice({
   name: "orders",
   initialState: { data: [], status: "idle", error: null },
-  reducers: {
-    // ... any other synchronous reducers ...
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchOrders.pending, (state) => {
@@ -23,19 +21,6 @@ const ordersSlice = createSlice({
       })
       .addCase(addNewOrder.fulfilled, (state: any, action) => {
         state.data.push(action.payload);
-      })
-      .addCase(updateOrder.fulfilled, (state: any, action: any) => {
-        const index = state.data.findIndex(
-          (order: any) => order.id === action.payload.id
-        );
-        if (index !== -1) {
-          state.data[index] = action.payload;
-        }
-      })
-      .addCase(deleteOrder.fulfilled, (state, action) => {
-        state.data = state.data.filter(
-          (order: any) => order.id !== action.payload
-        );
       });
   },
 });

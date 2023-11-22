@@ -126,7 +126,7 @@ const LayoutComponent: React.FC = () => {
               <Route exact path="/orders">
                 <Orders />
               </Route>
-              <Route exact path="/order/:orderId">
+              <Route exact path="/orders/:orderId">
                 <OrderDetails />
               </Route>
               <Route exact path="/users">

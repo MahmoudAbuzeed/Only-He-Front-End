@@ -13,7 +13,6 @@ import {
   makeStyles,
   InputLabel,
   Select,
-  Input,
   Paper,
 } from "@material-ui/core";
 import { useAppDispatch, useAppSelector } from "../../app.hooks";
@@ -29,17 +28,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
-
-interface Product {
-  id: number;
-  name: string;
-  // other product properties
-}
-
-interface OrderItem extends Product {
-  quantity: number;
-}
 
 const useStyles = makeStyles((theme) => ({
   dialog: {
@@ -73,45 +63,37 @@ const OrdersComponent: React.FC = () => {
   const [newProduct, setNewProduct] = useState<number | null>(null);
   const [newQuantity, setNewQuantity] = useState<number>(1);
   const [customer, setCustomer] = useState<string>("");
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const [openCreateOrderDialog, setOpenCreateOrderDialog] = useState(false);
   const [openAddNewProductDialog, setOpenAddNewProductDialog] = useState(false);
-
-  const [newOrder, setNewOrder] = useState({
-    customer: "",
-    orderItems: [],
-  });
 
   useEffect(() => {
     dispatch(fetchOrders());
     dispatch(fetchProducts());
   }, [dispatch]);
 
+  useEffect(() => {
+    const calculatedTotalPrice = dialogOrderItems.reduce((sum, item) => {
+      return sum + item.price * item.quantity;
+    }, 0);
+
+    setTotalPrice(calculatedTotalPrice);
+  }, [dialogOrderItems]);
   const handleOpenCreateOrderDialog = () => setOpenCreateOrderDialog(true);
   const handleCloseCreateOrderDialog = () => {
-    setNewOrder({
-      customer: "",
-      orderItems: [],
-    });
+    //
     setDialogOrderItems([]);
     setNewProduct(null);
     setNewQuantity(1);
     setOpenCreateOrderDialog(false);
   };
 
-  const handleNewOrderChange = (event: any) => {
-    const { name, value } = event.target;
-    setNewOrder((prevOrder) => ({
-      ...prevOrder,
-      [name]: value,
-    }));
-  };
-
   const handleCreateOrder = () => {
     const newOrderToCreate = {
       status: "PENDING",
       userId: 1,
-      total_price: 233333,
+      total_price: totalPrice,
       customer,
       orderItems: dialogOrderItems.map((item) => {
         return {
@@ -120,7 +102,6 @@ const OrdersComponent: React.FC = () => {
         };
       }),
     };
-    console.log({ newOrderToCreate });
     dispatch(addNewOrder(newOrderToCreate));
     handleCloseCreateOrderDialog();
   };
@@ -282,6 +263,13 @@ const OrdersComponent: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <Grid container justifyContent="flex-end">
+            <Grid item>
+              <Typography variant="h6" style={{ marginTop: 20 }}>
+                Total Price: {totalPrice.toFixed(2)} EGP
+              </Typography>
+            </Grid>
+          </Grid>
           <Button
             variant="contained"
             color="primary"

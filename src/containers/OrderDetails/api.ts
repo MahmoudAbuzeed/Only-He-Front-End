@@ -30,6 +30,17 @@ export const api = {
     }
   },
 
+  cancelOrder: async (orderId: number) => {
+    try {
+      const response = await axios.post<any>(
+        `${BASE_URL}/order/${orderId}/cancel`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to cancel order:", error);
+    }
+  },
+
   deleteOrder: async (id: number) => {
     try {
       const response = await axios.delete<any>(`${BASE_URL}/order/${id}`);

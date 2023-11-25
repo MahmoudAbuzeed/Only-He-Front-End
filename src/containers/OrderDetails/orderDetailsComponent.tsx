@@ -27,7 +27,7 @@ import {
 } from "@material-ui/core";
 import { useAppDispatch, useAppSelector } from "../../app.hooks";
 import { useParams } from "react-router";
-import { fetchOrderById, updateOrder } from "./actions";
+import { cancelOrder, fetchOrderById, updateOrder } from "./actions";
 import { fetchProducts } from "../Products/actions";
 
 const useStyles = makeStyles((theme) => ({
@@ -94,7 +94,7 @@ const OrderDetailsComponent = () => {
   const [isOrderCancelled, setIsOrderCancelled] = useState(false);
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [status, setStatus] = useState("Pending");
+  const [status, setStatus] = useState(orderDetails?.status);
   const { orderId }: any = useParams();
   const dispatch = useAppDispatch();
   const classes = useStyles();
@@ -111,6 +111,7 @@ const OrderDetailsComponent = () => {
   }, [dispatch, orderId]);
 
   const confirmCancelOrder = () => {
+    dispatch(cancelOrder(Number(orderId)));
     setIsOrderCancelled(true);
     setOpenCancelDialog(false);
   };
@@ -134,7 +135,8 @@ const OrderDetailsComponent = () => {
     setStatus(event.target.value as string);
   };
 
-  const steps = ["Pending", "Processing", "Shipped", "Delivered"];
+  const steps = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+  const isOrderStatusCancelled = orderDetails?.status === "CANCELLED";
 
   const getStepIndex = (status: any) => steps.indexOf(status);
 
@@ -249,13 +251,23 @@ const OrderDetailsComponent = () => {
                 Current Status
               </Typography>
               <Stepper
-                activeStep={getStepIndex(status)}
+                activeStep={getStepIndex(orderDetails?.status)}
                 alternativeLabel
                 className={classes.stepper}
               >
-                {steps.map((label) => (
+                {steps.map((label, index) => (
                   <Step key={label}>
-                    <StepLabel>{label}</StepLabel>
+                    <StepLabel>
+                      {label}
+                      {label === "Pending" && isOrderCancelled && (
+                        <Typography
+                          variant="caption"
+                          style={{ marginLeft: 10 }}
+                        >
+                          (Cancelled)
+                        </Typography>
+                      )}
+                    </StepLabel>
                   </Step>
                 ))}
               </Stepper>
@@ -269,6 +281,7 @@ const OrderDetailsComponent = () => {
                 color="secondary"
                 onClick={handleOpenEditDialog}
                 className={classes.actionButton}
+                disabled={isOrderStatusCancelled}
               >
                 Edit Order
               </Button>
@@ -278,6 +291,7 @@ const OrderDetailsComponent = () => {
                 color="secondary"
                 onClick={handleCancelOrder}
                 className={classes.actionButton}
+                disabled={isOrderStatusCancelled}
               >
                 Cancel Order
               </Button>

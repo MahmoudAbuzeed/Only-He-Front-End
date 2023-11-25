@@ -1,6 +1,11 @@
 // reducer.ts
 import { createSlice } from "@reduxjs/toolkit";
-import { updateOrder, deleteOrder, fetchOrderById } from "./actions"; // path to your actions file
+import {
+  updateOrder,
+  deleteOrder,
+  fetchOrderById,
+  cancelOrder,
+} from "./actions"; // path to your actions file
 
 const ordersSlice = createSlice({
   name: "order",
@@ -42,6 +47,9 @@ const ordersSlice = createSlice({
       .addCase(fetchOrderById.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message as any;
+      })
+      .addCase(cancelOrder.fulfilled, (state, action) => {
+        state.data = action.payload;
       })
       .addCase(updateOrder.fulfilled, (state: any, action: any) => {
         state.data = action.payload;

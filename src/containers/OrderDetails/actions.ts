@@ -31,6 +31,14 @@ export const updateOrder = createAsyncThunk(
   }
 );
 
+export const cancelOrder = createAsyncThunk(
+  "order/cancelOrder",
+  async (orderId: number) => {
+    const response = await api.cancelOrder(orderId);
+    return response;
+  }
+);
+
 export const deleteOrder = createAsyncThunk(
   "order/deleteOrder",
   async (id: number) => {

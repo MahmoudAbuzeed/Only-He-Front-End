@@ -82,7 +82,6 @@ const OrdersComponent: React.FC = () => {
   }, [dialogOrderItems]);
   const handleOpenCreateOrderDialog = () => setOpenCreateOrderDialog(true);
   const handleCloseCreateOrderDialog = () => {
-    //
     setDialogOrderItems([]);
     setNewProduct(null);
     setNewQuantity(1);

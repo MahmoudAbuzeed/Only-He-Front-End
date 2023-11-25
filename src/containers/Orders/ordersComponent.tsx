@@ -8,59 +8,186 @@ import {
   DialogTitle,
   TextField,
   Container,
-  FormControl,
+  Grid,
+  Grow,
+  makeStyles,
   InputLabel,
   Select,
-  MenuItem,
-  Slide,
-  Grid,
-  useTheme,
-  useMediaQuery,
+  Input,
+  Paper,
 } from "@material-ui/core";
 import { useAppDispatch, useAppSelector } from "../../app.hooks";
 import { fetchOrders, addNewOrder } from "./actions";
 import { fetchProducts } from "../Products/actions";
 import { useHistory } from "react-router";
+import {
+  FormControl,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 
-interface Order {
-  id: number;
-  customer: string;
-  products: string[];
-  date: string;
-  totalAmount: string;
-  status?: string;
-}
-
-interface ProductQuantity {
+interface Product {
   id: number;
   name: string;
+  // other product properties
+}
+
+interface OrderItem extends Product {
   quantity: number;
 }
 
+const useStyles = makeStyles((theme) => ({
+  dialog: {
+    minWidth: "50%",
+    minHeight: "50%",
+  },
+  title: {
+    backgroundColor: theme.palette.primary.main,
+    color: "white",
+    textAlign: "center",
+    padding: theme.spacing(2),
+  },
+  content: {
+    padding: theme.spacing(3),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  table: {
+    minWidth: 650,
+  },
+}));
 const OrdersComponent: React.FC = () => {
   const dispatch = useAppDispatch();
+  const history = useHistory();
+  const classes = useStyles();
+
   const orders = useAppSelector((state) => state.orders.data);
   const products = useAppSelector((state) => state.products.data);
+  const [dialogOrderItems, setDialogOrderItems] = useState<any[]>([]);
+  const [newProduct, setNewProduct] = useState<number | null>(null);
+  const [newQuantity, setNewQuantity] = useState<number>(1);
+  const [customer, setCustomer] = useState<string>("");
 
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [dialogType, setDialogType] = useState<"Add" | "Edit">("Add");
+  const [openCreateOrderDialog, setOpenCreateOrderDialog] = useState(false);
+  const [openAddNewProductDialog, setOpenAddNewProductDialog] = useState(false);
 
-  const [productQuantities, setProductQuantities] = useState<ProductQuantity[]>(
-    []
-  );
+  const [newOrder, setNewOrder] = useState({
+    customer: "",
+    orderItems: [],
+  });
 
-  const history = useHistory();
+  useEffect(() => {
+    dispatch(fetchOrders());
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  const handleOpenCreateOrderDialog = () => setOpenCreateOrderDialog(true);
+  const handleCloseCreateOrderDialog = () => {
+    setNewOrder({
+      customer: "",
+      orderItems: [],
+    });
+    setDialogOrderItems([]);
+    setNewProduct(null);
+    setNewQuantity(1);
+    setOpenCreateOrderDialog(false);
+  };
+
+  const handleNewOrderChange = (event: any) => {
+    const { name, value } = event.target;
+    setNewOrder((prevOrder) => ({
+      ...prevOrder,
+      [name]: value,
+    }));
+  };
+
+  const handleCreateOrder = () => {
+    const newOrderToCreate = {
+      status: "PENDING",
+      userId: 1,
+      total_price: 233333,
+      customer,
+      orderItems: dialogOrderItems.map((item) => {
+        return {
+          productId: item.id,
+          quantity: item.quantity,
+        };
+      }),
+    };
+    console.log({ newOrderToCreate });
+    dispatch(addNewOrder(newOrderToCreate));
+    handleCloseCreateOrderDialog();
+  };
 
   const ordersWithDisplayId = orders.map((order: any, index) => ({
     ...order,
     displayId: index + 1,
   }));
 
+  const handleOpenAddNewProductDialog = () => setOpenAddNewProductDialog(true);
+
+  const handleCloseAddNewProductDialog = () => {
+    setOpenAddNewProductDialog(false);
+  };
+
   useEffect(() => {
     dispatch(fetchOrders());
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  const handleProductChange = (event: any) => setNewProduct(event.target.value);
+
+  const handleQuantityChange = (event: any) => {
+    setNewQuantity(parseInt(event.target.value, 10));
+  };
+
+  const handleAddProduct = () => {
+    if (newProduct !== null) {
+      const selectedProduct: any = products.find(
+        (product: any) => product.id === newProduct
+      );
+
+      let updatedOrderItems: any = [];
+
+      if (selectedProduct) {
+        const existingProductIndex = dialogOrderItems.findIndex(
+          (item) => item.id === newProduct
+        );
+
+        if (existingProductIndex !== -1) {
+          updatedOrderItems = dialogOrderItems.map((item, index) =>
+            index === existingProductIndex
+              ? { ...item, quantity: item.quantity + newQuantity }
+              : item
+          );
+        } else {
+          updatedOrderItems = [
+            ...dialogOrderItems,
+            { ...selectedProduct, quantity: newQuantity },
+          ];
+        }
+
+        setDialogOrderItems(updatedOrderItems);
+      }
+
+      setNewProduct(null);
+      setNewQuantity(1);
+    }
+  };
+
+  const handleDeleteProduct = (productId: number) => {
+    setDialogOrderItems(
+      dialogOrderItems.filter((item) => item.id !== productId)
+    );
+  };
+
+  const handleSetCustomer = (e: any) => setCustomer(e.target.value);
 
   const columns: GridColDef[] = [
     { field: "displayId", headerName: "Order ID", width: 200 },
@@ -84,26 +211,6 @@ const OrdersComponent: React.FC = () => {
       },
     },
   ];
-
-  const handleClose = () => {
-    setOpenDialog(false);
-    setSelectedOrder(null);
-  };
-
-  const handleSave = () => {
-    if (selectedOrder) {
-      const productsIds = selectedOrder.products.map((product) => {
-        const productObj: any = products.find((p: any) => p.name === product);
-        return productObj?.id;
-      });
-      selectedOrder.products = productsIds;
-      selectedOrder.status = "PENDING";
-      console.log({ selectedOrder });
-      dispatch(addNewOrder(selectedOrder));
-    }
-    handleClose();
-  };
-
   return (
     <Container maxWidth="lg">
       <Grid container justifyContent="flex-end" style={{ margin: "1rem 0" }}>
@@ -111,12 +218,9 @@ const OrdersComponent: React.FC = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => {
-              setDialogType("Add");
-              setOpenDialog(true);
-            }}
+            onClick={handleOpenCreateOrderDialog}
           >
-            Add New Order
+            Create New Order
           </Button>
         </Grid>{" "}
       </Grid>
@@ -126,12 +230,14 @@ const OrdersComponent: React.FC = () => {
       </div>
 
       <Dialog
-        open={openDialog}
-        onClose={handleClose}
-        TransitionComponent={Slide}
+        open={openCreateOrderDialog}
+        onClose={handleCloseCreateOrderDialog}
+        fullWidth
+        maxWidth="lg"
+        TransitionComponent={Grow}
       >
-        <DialogTitle>{`${dialogType} Order`}</DialogTitle>
-        <DialogContent>
+        <DialogTitle className={classes.title}>Create New Order</DialogTitle>
+        <DialogContent className={classes.content}>
           <TextField
             autoFocus
             margin="dense"
@@ -139,37 +245,73 @@ const OrdersComponent: React.FC = () => {
             label="Customer Name"
             type="text"
             fullWidth
-            value={selectedOrder?.customer || ""}
-            onChange={(e) =>
-              setSelectedOrder({
-                ...selectedOrder!,
-                customer: e.target.value,
-              })
-            }
+            name="customer"
+            value={customer}
+            onChange={handleSetCustomer}
           />
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Select Product</InputLabel>
-            <Select
-              value=""
-              onChange={(e) => {
-                const selectedProduct: any = products.find(
-                  (p: any) => p.id === e.target.value
-                );
-                if (selectedProduct) {
-                  const updatedQuantities = [...productQuantities];
-                  if (
-                    !updatedQuantities.some((p) => p.id === selectedProduct.id)
-                  ) {
-                    updatedQuantities.push({
-                      id: selectedProduct.id,
-                      name: selectedProduct.name,
-                      quantity: 1,
-                    });
-                  }
-                  setProductQuantities(updatedQuantities);
-                }
-              }}
-            >
+
+          <TableContainer
+            component={Paper}
+            style={{ marginBottom: 20, marginTop: 20 }}
+          >
+            <Table className={classes.table} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Product Name</TableCell>
+                  <TableCell align="right">Quantity</TableCell>
+                  <TableCell align="right">Actions</TableCell>{" "}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {dialogOrderItems.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell component="th" scope="row">
+                      {row.name}
+                    </TableCell>
+                    <TableCell align="right">{row.quantity}</TableCell>
+                    <TableCell align="right">
+                      <Button
+                        color="secondary"
+                        onClick={() => handleDeleteProduct(row.id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleOpenAddNewProductDialog}
+          >
+            Add New Product
+          </Button>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseCreateOrderDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleCreateOrder} color="primary">
+            Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openAddNewProductDialog}
+        onClose={handleCloseAddNewProductDialog}
+        fullWidth
+        maxWidth="sm"
+        TransitionComponent={Grow}
+      >
+        <DialogTitle className={classes.title}>Add New Product</DialogTitle>
+        <DialogContent className={classes.content}>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Product</InputLabel>
+            <Select value={newProduct} onChange={handleProductChange}>
               {products.map((product: any) => (
                 <MenuItem key={product.id} value={product.id}>
                   {product.name}
@@ -177,50 +319,21 @@ const OrdersComponent: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-
-          {productQuantities.map((product, index) => (
-            <div
-              key={product.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                margin: "10px 0",
-              }}
-            >
-              <span style={{ flex: 1 }}>{product.name}</span>
-              <Button
-                onClick={() => {
-                  const updatedQuantities = [...productQuantities];
-                  const foundProduct = updatedQuantities[index];
-                  if (foundProduct.quantity > 1) {
-                    foundProduct.quantity -= 1;
-                  } else {
-                    updatedQuantities.splice(index, 1);
-                  }
-                  setProductQuantities(updatedQuantities);
-                }}
-              >
-                -
-              </Button>
-              <span style={{ margin: "0 10px" }}>{product.quantity}</span>
-              <Button
-                onClick={() => {
-                  const updatedQuantities = [...productQuantities];
-                  updatedQuantities[index].quantity += 1;
-                  setProductQuantities(updatedQuantities);
-                }}
-              >
-                +
-              </Button>
-            </div>
-          ))}
+          <TextField
+            label="Quantity"
+            type="number"
+            margin="normal"
+            fullWidth
+            value={newQuantity}
+            onChange={handleQuantityChange}
+          />{" "}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="secondary">
-            Cancel
+          <Button onClick={handleCloseAddNewProductDialog} color="primary">
+            Close
           </Button>
-          <Button onClick={handleSave} color="primary">
-            Save
+          <Button onClick={handleAddProduct} color="primary">
+            Add Product
           </Button>
         </DialogActions>
       </Dialog>

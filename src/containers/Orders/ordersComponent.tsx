@@ -218,17 +218,29 @@ const OrdersComponent: React.FC = () => {
       >
         <DialogTitle className={classes.title}>Create New Order</DialogTitle>
         <DialogContent className={classes.content}>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="customer"
-            label="Customer Name"
-            type="text"
-            fullWidth
-            name="customer"
-            value={customer}
-            onChange={handleSetCustomer}
-          />
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                autoFocus
+                variant="outlined"
+                margin="dense"
+                id="customer"
+                label="Customer Name"
+                type="text"
+                fullWidth
+                name="customer"
+                value={customer}
+                onChange={handleSetCustomer}
+              />
+            </Grid>
+            <Grid container justifyContent="flex-end" xs={6}>
+              <Grid item>
+                <Typography variant="h6" style={{ marginTop: 20 }}>
+                  Total Price: {totalPrice.toFixed(2)} EGP
+                </Typography>
+              </Grid>
+            </Grid>
+          </Grid>
 
           <TableContainer
             component={Paper}
@@ -262,13 +274,7 @@ const OrdersComponent: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Grid container justifyContent="flex-end">
-            <Grid item>
-              <Typography variant="h6" style={{ marginTop: 20 }}>
-                Total Price: {totalPrice.toFixed(2)} EGP
-              </Typography>
-            </Grid>
-          </Grid>
+
           <Button
             variant="contained"
             color="primary"

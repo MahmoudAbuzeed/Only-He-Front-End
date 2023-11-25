@@ -184,6 +184,11 @@ const OrderDetailsComponent = () => {
     dispatch(updateOrder(updatedOrder));
     setOpenEditDialog(false);
   };
+  const handleRemoveProduct = (index: number) => {
+    setDialogOrderItems(
+      dialogOrderItems.filter((_: any, idx: number) => idx !== index)
+    );
+  };
 
   return (
     <Container maxWidth="lg">
@@ -254,21 +259,6 @@ const OrderDetailsComponent = () => {
                   </Step>
                 ))}
               </Stepper>
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>Change Status</InputLabel>
-                <Select
-                  value={status}
-                  onChange={handleStatusChange}
-                  label="Change Status"
-                  disabled={isOrderCancelled}
-                >
-                  {steps.map((step) => (
-                    <MenuItem key={step} value={step}>
-                      {step}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h5" className={classes.totalAmount}>
@@ -402,7 +392,7 @@ const OrderDetailsComponent = () => {
                   {/* Products List */}
                   {dialogOrderItems.map((product: any, index: number) => (
                     <React.Fragment key={index}>
-                      <Grid item xs={10} md={11}>
+                      <Grid item xs={9} md={10}>
                         <TextField
                           label="Product Name"
                           variant="outlined"
@@ -413,7 +403,7 @@ const OrderDetailsComponent = () => {
                           }}
                         />
                       </Grid>
-                      <Grid item xs={2} md={1} key={index}>
+                      <Grid item xs={2} md={1}>
                         <TextField
                           label="Quantity"
                           type="number"
@@ -431,6 +421,16 @@ const OrderDetailsComponent = () => {
                             setDialogOrderItems(updatedOrderItems);
                           }}
                         />
+                      </Grid>
+                      <Grid item xs={1} md={1}>
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          style={{ height: "100%", width: "100%" }}
+                          onClick={() => handleRemoveProduct(index)}
+                        >
+                          Remove
+                        </Button>
                       </Grid>
                     </React.Fragment>
                   ))}

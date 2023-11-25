@@ -107,16 +107,20 @@ const OrderDetailsComponent = () => {
 
   useEffect(() => {
     dispatch(fetchOrderById(Number(orderId)));
-  }, [dispatch, orderId]);
-
-  useEffect(() => {
     dispatch(fetchProducts());
-  }, [dispatch]);
+  }, [dispatch, orderId]);
 
   const confirmCancelOrder = () => {
     setIsOrderCancelled(true);
     setOpenCancelDialog(false);
   };
+  useEffect(() => {
+    setDialogOrderItems(orderDetails?.orderItems);
+  }, [orderDetails]);
+
+  useEffect(() => {
+    setAvailableProducts(products);
+  }, [products]);
 
   const handleProductClick = (product: any) => setSelectedProduct(product);
   const handleCloseAddProductDialog = () => setOpenAddProductDialog(false);
@@ -138,6 +142,8 @@ const OrderDetailsComponent = () => {
     const productToAdd = {
       name: newProduct,
       quantity: newQuantity,
+      id: availableProducts.find((product: any) => product.name === newProduct)
+        .id,
     };
 
     // Check if the product already exists in the list
@@ -167,12 +173,16 @@ const OrderDetailsComponent = () => {
   };
 
   const handleSaveChanges = () => {
-    const updatedOrder = {
+    const updatedOrder: any = {
       ...orderDetails,
       status,
-      orderItems: dialogOrderItems,
+      orderItems: dialogOrderItems.map((item: any) => ({
+        ...item,
+        productId: item.id,
+      })),
     };
     dispatch(updateOrder(updatedOrder));
+    setOpenEditDialog(false);
   };
 
   return (

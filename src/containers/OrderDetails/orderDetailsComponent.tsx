@@ -29,6 +29,7 @@ import { useAppDispatch, useAppSelector } from "../../app.hooks";
 import { useParams } from "react-router";
 import { cancelOrder, fetchOrderById, updateOrder } from "./actions";
 import { fetchProducts } from "../Products/actions";
+import CancelIcon from "@material-ui/icons/Cancel";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -135,7 +136,7 @@ const OrderDetailsComponent = () => {
     setStatus(event.target.value as string);
   };
 
-  const steps = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+  const steps = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED"];
   const isOrderStatusCancelled = orderDetails?.status === "CANCELLED";
 
   const getStepIndex = (status: any) => steps.indexOf(status);
@@ -250,27 +251,38 @@ const OrderDetailsComponent = () => {
               <Typography variant="h6" gutterBottom>
                 Current Status
               </Typography>
-              <Stepper
-                activeStep={getStepIndex(orderDetails?.status)}
-                alternativeLabel
-                className={classes.stepper}
-              >
-                {steps.map((label, index) => (
-                  <Step key={label}>
-                    <StepLabel>
-                      {label}
-                      {label === "Pending" && isOrderCancelled && (
-                        <Typography
-                          variant="caption"
-                          style={{ marginLeft: 10 }}
-                        >
-                          (Cancelled)
-                        </Typography>
-                      )}
-                    </StepLabel>
-                  </Step>
-                ))}
-              </Stepper>
+              {isOrderStatusCancelled ? (
+                <Paper
+                  elevation={0}
+                  className={classes.statusBox}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "20px",
+                    backgroundColor: "#ffebee",
+                  }}
+                >
+                  <CancelIcon
+                    style={{ marginRight: "10px", color: "#d32f2f" }}
+                  />
+                  <Typography variant="h6" style={{ color: "#d32f2f" }}>
+                    Cancelled
+                  </Typography>
+                </Paper>
+              ) : (
+                <Stepper
+                  activeStep={getStepIndex(orderDetails?.status)}
+                  alternativeLabel
+                  className={classes.stepper}
+                >
+                  {steps.map((label, index) => (
+                    <Step key={label}>
+                      <StepLabel>{label}</StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
+              )}
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h5" className={classes.totalAmount}>
